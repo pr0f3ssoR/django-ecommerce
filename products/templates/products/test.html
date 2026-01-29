@@ -1,0 +1,54 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <link rel="stylesheet" href="{%static 'products/css/product_form.css'%}">
+</head>
+<body>
+    <!-- <form method="post">
+        {%csrf_token%}
+        {{product_form.as_p}}
+        {{variant_formset.as_p}}
+        <button>Save</button>
+    </form> -->
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Product Management</h1>
+            <p>Create and manage your product variants</p>
+        </div>
+        
+        <div class="form-content">
+            <form method="post" id="productForm">
+                {% csrf_token %}
+                
+                <!-- Product Details Section -->
+                <div class="product-details">
+                    <div class="section-title">Product Details</div>
+                    {{ product_form.as_p }}
+                </div>
+
+                <!-- Variants Section -->
+                <div class="variants-section">
+                    <div class="variants-header">
+                        <div class="section-title">Product Variants</div>
+                        <button type="button" class="add-variant-btn" id="addVariantBtn">Add Variant</button>
+                    </div>
+
+                    <div id="variantsContainer">
+                        {{ variant_formset.management_form }}
+                        <!-- Variants will be organized here by JS -->
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<script src="{%static 'products/js/product_form.cs'%}"></script>
+</body>
+</html>

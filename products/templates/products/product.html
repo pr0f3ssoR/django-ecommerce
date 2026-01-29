@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Product</title>
+</head>
+<body>
+    <h1>{{message}}</h1>
+    <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <h3>Books for {{ author.name }}</h3>
+
+    {{product_form.as_p}}
+    
+    <table>
+        {% for form in formset %}
+            <tr>
+                <td>
+                    {{ form.id }} {{ form.title }}
+                    {{form.price}}
+                    {{form.stock}}
+                </td>
+                {% if formset.can_delete %}
+                    <td>Delete? {{ form.DELETE }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+
+    <button type="submit">Update Books</button>
+</form>
+<script>{
+    variants:{
+        []
+        images:{
+            []
+        }
+        attribues:{
+            size:[]
+            color:[]
+            
+        }
+    }
+}</script>
+</body>
+</html>
