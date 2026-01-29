@@ -277,3 +277,69 @@ function addAttributeElement(btn){
     `
     attributeSection.insertAdjacentHTML('afterend', attributeElement.trim())
 }
+
+
+function addVariant(){
+    const varintHTML = `    <div class="variant-card">
+                                <div class="variant-header">
+                                    <div class="variant-title">Variant</div>
+                                    <button onclick="deleteVariant(this)" type="button" class="delete-variant-btn">
+                                        Delete
+                                    </button>
+                                </div>
+                                <div class="variant-fields">
+                                    <div class="form-group">
+                                        <label >Price:</label>
+                                        <input type="number" name="variant-2-price" min="0" id="id_variant-2-price">
+                                    </div>
+                                    <div class="form-group">
+                                        <label >Stock:</label>
+                                        <input type="number" name="variant-2-stock" min="0" id="id_variant-2-stock">
+                                    </div>
+                                </div>
+                                <div class="attributes-section">
+                                    <div class="attributes-header">
+                                        <div class="attributes-title">Attributes</div>
+                                        <button onclick="addAttributeElement(this)" type="button" class="add-attribute-btn">
+                                            + Add Attribute
+                                        </button>
+                                    </div>
+                                    <textarea name="variant-2-attributes" cols="40" rows="10" id="id_variant-2-attributes">null</textarea>
+                                    
+                                </div>
+                            </div>
+                            `
+
+        const varinatContainer = document.getElementById('variantsContainer')
+
+        varinatContainer.insertAdjacentHTML('afterbegin',varintHTML)
+}
+
+
+
+function deleteVariant(btn){
+    const variantElement = btn.parentElement.parentElement
+    
+    const hiddenInput = variantElement.querySelector('.hidden-input input')
+
+    const deletedVariantId = hiddenInput ? hiddenInput.value: null
+
+
+    if (hiddenInput && deletedVariantId){
+        const hiddenContainer = document.getElementById('deletedVariantInputs')
+
+        hiddenContainer.insertAdjacentHTML('afterbegin',`<input hidden type="number" value="${deletedVariantId}">`)
+    }
+
+    variantElement.remove()
+}
+
+const form = document.getElementById('productForm')
+
+form.addEventListener('submit',e => {
+
+    const variants = document.getElementById('variantsContainer').querySelectorAll('.variant-card')
+
+    const formLength = variants.length
+
+})

@@ -146,7 +146,7 @@ def json_view(request:HttpRequest):
         'description':product_dict['description']
     })
 
-    json_variant_formset = JsonProductVariantFormset(initial=product_dict['variants'])
+    json_variant_formset = JsonProductVariantFormset(initial=product_dict['variants'],prefix='variant')
 
     return render(request,'products/test.html',{'product_form':json_product_form,'variant_formset':json_variant_formset})
     

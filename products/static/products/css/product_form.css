@@ -365,3 +365,12 @@
                 justify-self: flex-start;
             }
         }
+
+
+label {
+    pointer-events: none;
+}
+
+.hidden-input {
+    display: none;
+}
