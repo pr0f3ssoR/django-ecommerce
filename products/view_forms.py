@@ -61,7 +61,4 @@ class JsonProductVariantForm(forms.Form):
     stock = forms.IntegerField(required=True,min_value=0)
     attributes = forms.JSONField()
 
-JsonProductVariantFormset = forms.formset_factory(form=JsonProductVariantForm)
-
-
-
+JsonProductVariantFormset = forms.formset_factory(form=JsonProductVariantForm,extra=0)

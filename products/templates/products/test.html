@@ -10,6 +10,10 @@
 </head>
 <body>
 
+    {%for error in errors%}
+    {{error.attributes.errors}}
+    {%endfor%}
+
     <div class="form-container">
         <div class="form-header">
             <h1>Product Management</h1>

@@ -6,6 +6,7 @@ from django import forms
 from django.db import transaction
 from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,AttributeForm,AttributeValueFormset,formset,AttrValueFormset,AttributeFormset
 from .utilities import get_product
+from pprint import pprint
 
 def product_view_dummy(request):
     return HttpResponse('Hello there')
@@ -126,14 +127,32 @@ def json_view(request:HttpRequest):
 
     from .view_forms import JsonProductVariantFormset,JsonProductForm
 
+    errors = []
+
     pk = 1
 
     product_dict = get_product(pk=pk)
 
     if request.method == 'POST':
-        pass
+        product_form = JsonProductForm(request.POST)
+        variant_formset = JsonProductVariantFormset(request.POST,prefix='variant')
 
+        # if variant_formset.is_valid():
+        #     for form in variant_formset:
+        #         print(form.cleaned_data)
 
+        # if product_form.is_valid():
+        #     print(product_form.cleaned_data)
+
+        if variant_formset.is_valid():
+            for form in variant_formset:
+                print(form.cleaned_data)
+            print('Here')
+        
+        print(variant_formset.errors)
+        print(variant_formset.non_form_errors())
+
+       
     product_form = ProductForm(initial={
         'id':product_dict['id'],
         'title':product_dict['title'],
@@ -147,8 +166,10 @@ def json_view(request:HttpRequest):
     })
 
     json_variant_formset = JsonProductVariantFormset(initial=product_dict['variants'],prefix='variant')
+    # for form in json_variant_formset:
+    #     print(form.initial['attributes'])
 
-    return render(request,'products/test.html',{'product_form':json_product_form,'variant_formset':json_variant_formset})
+    return render(request,'products/test.html',{'product_form':json_product_form,'variant_formset':json_variant_formset,'errors':errors})
     
     # product_dict = get_product(pk=pk)
 

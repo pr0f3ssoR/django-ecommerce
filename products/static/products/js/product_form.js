@@ -290,11 +290,11 @@ function addVariant(){
                                 <div class="variant-fields">
                                     <div class="form-group">
                                         <label >Price:</label>
-                                        <input type="number" name="variant-2-price" min="0" id="id_variant-2-price">
+                                        <input type="number" name="variant-2-price" min="0">
                                     </div>
                                     <div class="form-group">
                                         <label >Stock:</label>
-                                        <input type="number" name="variant-2-stock" min="0" id="id_variant-2-stock">
+                                        <input type="number" name="variant-2-stock" min="0">
                                     </div>
                                 </div>
                                 <div class="attributes-section">
@@ -304,7 +304,7 @@ function addVariant(){
                                             + Add Attribute
                                         </button>
                                     </div>
-                                    <textarea name="variant-2-attributes" cols="40" rows="10" id="id_variant-2-attributes">null</textarea>
+                                    <textarea name="variant-2-attributes" cols="40" rows="10">null</textarea>
                                     
                                 </div>
                             </div>
@@ -334,12 +334,119 @@ function deleteVariant(btn){
     variantElement.remove()
 }
 
+
+function attributesTypeConversion(attributeInputs,textArea){
+
+    const attributesArray = []
+    for (let index = 0; index < attributeInputs.length; index+=2) {
+
+        const nameInput = attributeInputs[index]
+        const valueInput = attributeInputs[index+1]
+
+        if (nameInput && valueInput){
+            attributesArray.push({name:nameInput.value,value:valueInput.value})
+        }
+        
+    }
+
+    textArea.value =  JSON.stringify(attributesArray)
+
+}
+
+function getIndexes(length, initalDataIndexes) {
+    const result = [];
+    let num = 0; // starting number
+
+    while (result.length < length) {
+        if (!initalDataIndexes.has(String(num))) {
+            result.push(num);
+        }
+        num++;
+    }
+
+    return result;
+}
+
+
+function fixFieldsIndex(variantCards,initialDataIndexes){
+
+    const indexes = getIndexes(variantCards.length,initialDataIndexes)
+
+    for (let index = 0; index < variantCards.length; index++) {
+        const card = variantCards[index];
+        const formIndex = indexes[index]
+
+        const hiddenIdContainer = card.querySelector('.variant-fields .hidden-input')
+
+        if(hiddenIdContainer) continue;
+
+        const fields = card.querySelectorAll('.form-group input,textarea')
+
+        fields.forEach(field => {
+            const nameVals = field.name.split('-')
+
+            const [prefix,fieldName,fieldIndex] = [nameVals[0],nameVals.at(-1),formIndex]
+
+            console.log(`${prefix}-${fieldIndex}-${fieldName}`)
+
+            field.name = `${prefix}-${fieldIndex}-${fieldName}`
+        });
+        
+    }
+    
+}
+
+function fixHiddenFormFields(formLength){
+    const hiddenInputContainer = document.getElementById('hiddenInputs')
+
+    const initialFormInput = hiddenInputContainer.querySelector('input[name="variant-INITIAL_FORMS"]')
+
+    const totalFormInput = hiddenInputContainer.querySelector('input[name="variant-TOTAL_FORMS"]')
+
+    initialFormInput.value = 0
+    totalFormInput.value = formLength
+}
+
+function getInitialDataIndexes(variantCards){
+
+    const indexes = new Set()
+
+    variantCards.forEach(card => {
+        const hiddenIdContainer = card.querySelector('.variant-fields .hidden-input')
+
+        if(hiddenIdContainer){
+            const index = hiddenIdContainer.querySelector('input').name.split('-')[1]
+            indexes.add(String(index))
+        }
+    });
+
+    return indexes
+}
+
 const form = document.getElementById('productForm')
 
 form.addEventListener('submit',e => {
 
-    const variants = document.getElementById('variantsContainer').querySelectorAll('.variant-card')
+    e.preventDefault();
 
-    const formLength = variants.length
+    const variantCards = document.getElementById('variantsContainer').querySelectorAll('.variant-card')
+
+    const formLength = variantCards.length
+
+    variantCards.forEach(card => {
+        attributeSection = card.querySelector('.attributes-section')
+
+        attributeInputs = attributeSection.querySelectorAll('.attribute input')
+
+        textArea = attributeSection.querySelector('textarea')
+
+        attributesTypeConversion(attributeInputs,textArea)
+
+    });
+
+    indexes = getInitialDataIndexes(variantCards)
+
+    fixFieldsIndex(variantCards,indexes)
+    fixHiddenFormFields(formLength)
 
 })
