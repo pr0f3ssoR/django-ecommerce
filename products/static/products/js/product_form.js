@@ -368,32 +368,57 @@ function getIndexes(length, initalDataIndexes) {
 }
 
 
-function fixFieldsIndex(variantCards,initialDataIndexes){
+// function fixFieldsIndex(variantCards,initialDataIndexes){
 
-    const indexes = getIndexes(variantCards.length,initialDataIndexes)
+//     const indexes = getIndexes(variantCards.length,initialDataIndexes)
+
+//     for (let index = 0; index < variantCards.length; index++) {
+//         const card = variantCards[index];
+//         const formIndex = indexes[index]
+
+//         const hiddenIdContainer = card.querySelector('.variant-fields .hidden-input')
+
+//         if(hiddenIdContainer) continue;
+
+//         const fields = card.querySelectorAll('.form-group input,textarea')
+
+//         fields.forEach(field => {
+//             const nameVals = field.name.split('-')
+
+//             const [prefix,fieldName,fieldIndex] = [nameVals[0],nameVals.at(-1),formIndex]
+
+//             console.log(`${prefix}-${fieldIndex}-${fieldName}`)
+
+//             field.name = `${prefix}-${fieldIndex}-${fieldName}`
+//         });
+        
+//     }
+    
+// }
+
+
+function fixFieldsIndex(variantCards){
 
     for (let index = 0; index < variantCards.length; index++) {
         const card = variantCards[index];
-        const formIndex = indexes[index]
 
-        const hiddenIdContainer = card.querySelector('.variant-fields .hidden-input')
+        const fields = card.querySelectorAll('.variant-fields input,.attributes-section textarea')
 
-        if(hiddenIdContainer) continue;
+        for (let i = 0; i < fields.length; i++) {
+            const field = fields[i];
 
-        const fields = card.querySelectorAll('.form-group input,textarea')
-
-        fields.forEach(field => {
             const nameVals = field.name.split('-')
 
-            const [prefix,fieldName,fieldIndex] = [nameVals[0],nameVals.at(-1),formIndex]
-
-            console.log(`${prefix}-${fieldIndex}-${fieldName}`)
+            const [prefix,fieldName,fieldIndex] = [nameVals[0],nameVals.at(-1),index]
 
             field.name = `${prefix}-${fieldIndex}-${fieldName}`
-        });
+
+            
+        }
+
+
         
     }
-    
 }
 
 function fixHiddenFormFields(formLength){
@@ -427,7 +452,6 @@ const form = document.getElementById('productForm')
 
 form.addEventListener('submit',e => {
 
-    e.preventDefault();
 
     const variantCards = document.getElementById('variantsContainer').querySelectorAll('.variant-card')
 
@@ -444,9 +468,9 @@ form.addEventListener('submit',e => {
 
     });
 
-    indexes = getInitialDataIndexes(variantCards)
+    // indexes = getInitialDataIndexes(variantCards)
 
-    fixFieldsIndex(variantCards,indexes)
+    fixFieldsIndex(variantCards)
     fixHiddenFormFields(formLength)
 
 })

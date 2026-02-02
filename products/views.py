@@ -147,7 +147,7 @@ def json_view(request:HttpRequest):
         if variant_formset.is_valid():
             for form in variant_formset:
                 print(form.cleaned_data)
-            print('Here')
+            print('Formset is valid')
         
         print(variant_formset.errors)
         print(variant_formset.non_form_errors())
