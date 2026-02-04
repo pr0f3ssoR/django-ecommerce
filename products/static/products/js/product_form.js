@@ -340,11 +340,17 @@ function attributesTypeConversion(attributeInputs,textArea){
     const attributesArray = []
     for (let index = 0; index < attributeInputs.length; index+=2) {
 
-        const nameInput = attributeInputs[index]
-        const valueInput = attributeInputs[index+1]
+        const name = attributeInputs[index]?.value?.trim()
+        const value = attributeInputs[index+1]?.value?.trim()
 
-        if (nameInput && valueInput){
-            attributesArray.push({name:nameInput.value,value:valueInput.value})
+        if (name &&
+            value &&
+            name !== "undefined" &&
+            value !== "undefined" &&
+            name !== "null" &&
+            value !== "null"
+        ){
+            attributesArray.push({name:name,value:value})
         }
         
     }
@@ -366,35 +372,6 @@ function getIndexes(length, initalDataIndexes) {
 
     return result;
 }
-
-
-// function fixFieldsIndex(variantCards,initialDataIndexes){
-
-//     const indexes = getIndexes(variantCards.length,initialDataIndexes)
-
-//     for (let index = 0; index < variantCards.length; index++) {
-//         const card = variantCards[index];
-//         const formIndex = indexes[index]
-
-//         const hiddenIdContainer = card.querySelector('.variant-fields .hidden-input')
-
-//         if(hiddenIdContainer) continue;
-
-//         const fields = card.querySelectorAll('.form-group input,textarea')
-
-//         fields.forEach(field => {
-//             const nameVals = field.name.split('-')
-
-//             const [prefix,fieldName,fieldIndex] = [nameVals[0],nameVals.at(-1),formIndex]
-
-//             console.log(`${prefix}-${fieldIndex}-${fieldName}`)
-
-//             field.name = `${prefix}-${fieldIndex}-${fieldName}`
-//         });
-        
-//     }
-    
-// }
 
 
 function fixFieldsIndex(variantCards){

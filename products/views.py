@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse,HttpRequest,JsonResponse
 from .models import Product,ProductVariant,Attribute,AttributeValue,VariantAttributeValue
 from django.db.models import Min
 from django import forms
 from django.db import transaction
 from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,AttributeForm,AttributeValueFormset,formset,AttrValueFormset,AttributeFormset
-from .utilities import get_product
+from .utilities import get_product,ProductUpsertService
 from pprint import pprint
 
 def product_view_dummy(request):
@@ -131,11 +131,23 @@ def json_view(request:HttpRequest):
 
     pk = 1
 
-    product_dict = get_product(pk=pk)
 
     if request.method == 'POST':
         product_form = JsonProductForm(request.POST)
         variant_formset = JsonProductVariantFormset(request.POST,prefix='variant')
+
+
+        if product_form.is_valid() and variant_formset.is_valid():
+
+            product_data = product_form.cleaned_data
+            variants = variant_formset.cleaned_data
+
+            product_upsert_service = ProductUpsertService(product_data,variants)
+            product_upsert_service.execute()
+                
+
+                        
+
 
         # if variant_formset.is_valid():
         #     for form in variant_formset:
@@ -144,20 +156,16 @@ def json_view(request:HttpRequest):
         # if product_form.is_valid():
         #     print(product_form.cleaned_data)
 
-        if variant_formset.is_valid():
-            for form in variant_formset:
-                print(form.cleaned_data)
-            print('Formset is valid')
+        # if variant_formset.is_valid():
+        #     for form in variant_formset:
+        #         print(form.cleaned_data)
+        #     print('Formset is valid')
         
-        print(variant_formset.errors)
-        print(variant_formset.non_form_errors())
+        # print(variant_formset.errors)
+        # print(variant_formset.non_form_errors())
 
-       
-    product_form = ProductForm(initial={
-        'id':product_dict['id'],
-        'title':product_dict['title'],
-        'description':product_dict['description']
-    })
+    product_dict = get_product(pk=pk)
+
 
     json_product_form = JsonProductForm(initial={
         'id':product_dict['id'],
@@ -171,9 +179,15 @@ def json_view(request:HttpRequest):
 
     return render(request,'products/test.html',{'product_form':json_product_form,'variant_formset':json_variant_formset,'errors':errors})
     
-    # product_dict = get_product(pk=pk)
-
-    # return JsonResponse(product_dict)
 
 
-    
+
+def saving_product(cleaned_data:dict):
+    existing_variant_ids = []
+    new_variants = []
+
+    for key,value in cleaned_data.items():
+        if key == 'id' and value:
+            existing_variant_ids.append(value)
+        
+    ProductVariant.objects.filter()

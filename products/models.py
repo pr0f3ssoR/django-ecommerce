@@ -70,8 +70,8 @@ class VariantImage(models.Model):
     is_display_image = models.BooleanField(default=False)
 
 
-    def __str__(self):
-        return f'{self.variant.product.title} - {self.variant.price}'
+    # def __str__(self):
+    #     return f'{self.variant.product.title} - {self.variant.price}'
     
     def save(self,*args,**kwargs):
         if self.is_display_image:
@@ -85,9 +85,6 @@ class VariantAttributeValue(models.Model):
     variant = models.ForeignKey('ProductVariant',on_delete=models.CASCADE,related_name='variant_attribute_value')
     attribute_value = models.ForeignKey('AttributeValue',on_delete=models.CASCADE,related_name='variant_attribute_value')
 
-
-    def __str__(self):
-        return f'{self.variant.product.title} - {self.attribute_value.get_attribute_name()} - {self.attribute_value.get_attribute_value()}'
 
 
 class Category(models.Model):
