@@ -1,0 +1,3 @@
+class ProductNotFetched(Exception):
+    pass
+

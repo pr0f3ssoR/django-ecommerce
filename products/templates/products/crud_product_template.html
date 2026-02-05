@@ -5,7 +5,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test</title>
+    {%if product_form.title.initial%}
+        <title>{{product_form.title.initial}} - Update</title>
+    {%else%}
+        <title>Create New Product</title>
+    {%endif%}
     <link rel="stylesheet" href="{%static 'products/css/product_form.css'%}">
 </head>
 <body>

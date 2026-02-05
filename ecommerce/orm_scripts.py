@@ -4,6 +4,7 @@ import django
 from django.db import connection,transaction
 from django.db.models import Min,Subquery,OuterRef,F,Prefetch
 from pprint import pprint
+from typing import Union
 
 # 🔹 Add project root (where manage.py lives)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +26,39 @@ from products.models import (
         ProductVariant,
         VariantAttributeValue,
     )
+
+def test2():
+    # product_variant_qs = ProductVariant.objects.select_related('product')\
+    # .prefetch_related(
+    #     Prefetch(
+    #         'variant_attribute_value',queryset=\
+    #         VariantAttributeValue.objects.select_related('attribute_value__attribute'))
+    # ).filter(product_id=1)
+
+    # print(product_variant_qs)
+
+    # product_data = Product.objects.prefetch_related(
+    #     Prefetch(
+    #         'product_variant',
+    #         queryset=ProductVariant.objects.prefetch_related(
+    #             Prefetch(
+    #                 'variant_attribute_value',
+    #                 queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute')
+    #             )
+    #         )
+    #     )
+    # ).get(id=1)
+
+    # data = VariantAttributeValue.objects.select_related(
+    #     'variant__product',
+    #     'attribute_value__attribute'
+    # ).filter(variant__product_id=1)
+
+    # product = data
+
+    pprint(connection.queries)
+    print(f'Number of queries: {len(connection.queries)}')
+
 
 
 def test():
@@ -73,94 +107,128 @@ def test():
     
 
 
-def handle_attribute_values(variant,attribute_value_obj):
-    try:
-        vav_obj = VariantAttributeValue.objects.get(variant_id=variant.id,attribute_value_id=attribute_value_obj.id)
-    except:
-        vav_obj = VariantAttributeValue(variant=variant,attribute_value=attribute_value_obj)
-        # vav_obj.save()
+class ProductFetcher:
 
+    def __get_product(self,product_id) -> Product:
+        """
+        Docstring for __get_product
+        
+        :param self: Description
+        :param product_id: Description
+        :return: Description
+        :rtype: Product
+
+        This method tries to fetch product object from db by searching using given product_id, return that object if found or raise 'DoesNotExist' exception
+
+        """
+
+        try:
+            product_obj = Product.objects.prefetch_related(
+                Prefetch(
+                    'product_variant',
+                    queryset=ProductVariant.objects.prefetch_related(
+                        Prefetch(
+                            'variant_attribute_value',
+                            queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute')
+                        )
+                    )
+                )
+            ).get(id=product_id)
+
+            return product_obj
+        except Product.DoesNotExist:
+            return None
+        
+    def __serialize_product(self,product) -> dict:
+
+        """
+
+        Serialize a product instance along with its variants and variant attributes.
+
+        ⚠️ Note:
+        This method assumes the product is fetched with optimized ORM queries
+        (e.g. select_related / prefetch_related) to avoid N+1 queries.
+
+        :param product: Product model instance to serialize
+        :return: Serialized product data
+
+        """
+
+        serialized_product = {
+            'id':product.id,
+            'title':product.title,
+            'description':product.description
+        }
+
+        variants = product.product_variant.all()
+        serialized_product['variants'] = self.__serialize_variants(variants)
+
+        return serialized_product
+
+
+    def __serialize_variants(self,variants):
+        serialized_variants = []
+
+        for variant in variants:
+
+            serialized_variant = {
+                'id': variant.id,
+                'price': variant.price,
+                'stock': variant.stock
+            }
+
+            variant_attribute_values = variant.variant_attribute_value.all()
+
+            serialized_variant['attributes'] = self.__serialize_attributes(variant_attribute_values)
+
+            serialized_variants.append(serialized_variant)
+        
+        return serialized_variants
 
     
+    def __serialize_attributes(self,variant_attribute_values):
+        serialized_attributes = []
 
-def fetch_data_from_db(product_data:dict):
-    try:
-        product = Product.objects.get(id=product_data['id'])
-    except:
-        product = Product()
+        for vav in variant_attribute_values:
+            attribute = vav.attribute_value.attribute.name
+            attribute_value = vav.attribute_value.value
 
-    product_title = product_data['title']
-    product_description = product_data['description']
+            serialized_attribute = {
+                'name':attribute,
+                'value':attribute_value
+            }
 
-    product.title = product_title
-    product.description = product_description
-
-    # product.save()
-
-    variants = product_data['variants']
-
-    existing_variant_ids = []
-
-    for variant_data in variants:
-        variant_id = variant_data.get('id')
-        if variant_id: existing_variant_ids.append(variant_id)
-
+            serialized_attributes.append(serialized_attribute)
+        
+        return serialized_attributes
     
-    attribute_names_cache = dict()
-    attriubte_values_cache = dict()
+
+    def get_product(self,product_id:int):
+
+        if not isinstance(product_id,int):
+            raise TypeError(f'Expected int for product_id arg, got f{type(product_id)}')
+        product = self.__get_product(product_id)
+        return product
         
     
-    variants_in_bulk = ProductVariant.objects.filter(product=product,id__in=existing_variant_ids).select_related('product').in_bulk()
+    def get_serialized_product(self,product: Union[Product, int]) -> dict:
 
+        """
 
+        This method returns serilized product by accepting product (id or product object) type int or type Product[model class].
+        If type int is given then this method will first fetch product from db using id given, then it will serilize it.
+        If product object is given then this will serilize that product object and will simply return it
 
-    for variant_data in variants:
-        variant = variants_in_bulk.get(variant_data['id']) if variant_data.get('id',None) else ProductVariant(product=product)
+        """
 
-        variant_price = variant_data['price']
-        variant_stock = variant_data['stock']
-
-        variant.price = variant_price
-        variant.stock = variant_stock
-
-        # variant.save()
-
-        attributes = variant_data['attributes']
-
-
-        for attribute_data in attributes:
-            attribute_name = attribute_data['name']
-            attribute_value = attribute_data['value']
-
-            if attribute_name not in attribute_names_cache:
-                attribute_obj,is_created = Attribute.objects.get_or_create(name=attribute_name)
-                attribute_names_cache[attribute_name] = attribute_obj
-            else:
-                attribute_obj = attribute_names_cache[attribute_name]
-            
-            if attribute_value not in attriubte_values_cache:
-                attribute_value_obj = AttributeValue.objects.filter(attribute=attribute_obj,value=attribute_value).select_related('attribute').first()
-
-                if not attribute_value_obj:
-                    attribute_value_obj = AttributeValue(attribute=attribute_obj,value=attribute_value)
-                    # attribute_value_obj.save()
-
-                attriubte_values_cache[attribute_value] = attribute_value_obj
-            
-            else:
-                attribute_value_obj = attriubte_values_cache[attribute_value]
-
-            
-            try:
-                vav_obj = VariantAttributeValue.objects.get(variant_id=variant.id,attribute_value_id=attribute_value_obj.id)
-            except:
-                vav_obj = VariantAttributeValue(variant=variant,attribute_value=attribute_value_obj)
-                # vav_obj.save()       
-
-
-    pprint(connection.queries)
-    print(f'Number of queries: {len(connection.queries)}')
+        if isinstance(product,int):
+            product_obj = self.__get_product(product)
+        elif isinstance(product,Product):
+            product_obj = product
+        else:
+            raise TypeError(f"Expected Product or int for product arg, got {type(product)}")
         
+        return self.__serialize_product(product_obj)
 
 
 class ProductUpsertService:
@@ -311,7 +379,15 @@ def why_extra_queries():
 # fetch_data_from_db(product_data)
 
 
-product_upsert_service = ProductUpsertService(product_data)
-product_upsert_service.execute()
+# product_upsert_service = ProductUpsertService(product_data)
+# product_upsert_service.execute()
 
+# test2()
+# product = ProductFetcher().get_product(product_id=1)
 
+serialized_product = ProductFetcher().get_serialized_product(product=1)
+
+# print(product)
+print(serialized_product)
+pprint(connection.queries)
+print(f'Number of queries: {len(connection.queries)}')
