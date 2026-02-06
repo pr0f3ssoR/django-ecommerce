@@ -2,16 +2,18 @@
 {%load json_conversion%}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {%if product_form.title.initial%}
-        <title>{{product_form.title.initial}} - Update</title>
+    <title>{{product_form.title.initial}} - Update</title>
     {%else%}
-        <title>Create New Product</title>
+    <title>Create New Product</title>
     {%endif%}
     <link rel="stylesheet" href="{%static 'products/css/product_form.css'%}">
 </head>
+
 <body>
 
     {%for error in errors%}
@@ -24,7 +26,7 @@
             <p>Create and manage your product variants</p>
         </div>
         <div class="form-content">
-            <form method="post" id="productForm">
+            <form enctype="multipart/form-data" method="post" id="productForm">
                 {%csrf_token%}
                 <div class="product-details">
                     <div class="section-title">Product Details</div>
@@ -36,7 +38,7 @@
                         {{product_form.description.label_tag}}
                         {{product_form.description}}
                     </div>
-                {{product_form.id}}
+                    {{product_form.id}}
                 </div>
                 <div id="hiddenInputs">
                     {{variant_formset.management_form}}
@@ -45,62 +47,95 @@
                 <div class="variants-section">
                     <div class="variants-header">
                         <div class="section-title">Product Variants</div>
-                        <button onclick="addVariant()" type="button" class="add-variant-btn" >Add Variant</button>
+                        <button onclick="addVariant()" type="button" class="add-variant-btn">Add Variant</button>
                     </div>
                     <div id="variantsContainer">
                         {%for form in variant_formset%}
-                            <div class="variant-card">
-                                <div class="variant-header">
-                                    <div class="variant-title">Variant</div>
-                                    <button onclick="deleteVariant(this)" type="button" class="delete-variant-btn" >
-                                        Delete
-                                    </button>
+                        <div class="variant-card">
+                            <div class="variant-header">
+                                <div class="variant-title">Variant</div>
+                                <button onclick="deleteVariant(this)" type="button" class="delete-variant-btn">
+                                    Delete
+                                </button>
+                            </div>
+                            <div class="variant-fields">
+                                <div class="hidden-input">
+                                    {{form.id}}
                                 </div>
-                                <div class="variant-fields">
-                                    <div class="hidden-input">
-                                        {{form.id}}
-                                    </div>
-                                    <div class="form-group">
-                                        {{form.price.label_tag}}
-                                        {{form.price}}
-                                    </div>
-                                    <div class="form-group">
-                                        {{form.stock.label_tag}}
-                                        {{form.stock}}
-                                    </div>
+                                <div class="form-group">
+                                    {{form.price.label_tag}}
+                                    {{form.price}}
+                                </div>
+                                <div class="form-group">
+                                    {{form.stock.label_tag}}
+                                    {{form.stock}}
+                                </div>
+                            </div>
+                            <div class="images-section">
+                                <div class="images-header">
+                                    <div class="subsection-title">Images</div>
+                                </div>
+                                <!-- <input type="file" id="image-upload-0" hidden accept="image/*" multiple> -->
+                                 {{form.image_input_field}}
+                                <div class="image-upload-area" onclick="addImage(this)">
+                                    <div class="upload-icon">📷</div>
+                                    <div class="upload-text">Click to upload</div>
+                                    <div class="upload-hint">PNG, JPG, GIF up to 10MB</div>
+                                </div>
+                                <div class="images-grid">
+                                    {{form.images}}
+                                    {%for image in form.images.value|json_loads%}
+                                        <div class="image-item">
+                                            <img class="image-preview"
+                                                src="{{image.url}}"
+                                                alt="">
+                                            <div class="image-info">
+                                                <div class="image-name" title="${img.name}">Image</div>
+                                                <div class="image-actions">
+                                                    <button type="button" class="delete-image-btn-card">
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {%endfor%}
                                 </div>
                                 <div class="attributes-section">
                                     <div class="attributes-header">
                                         <div class="attributes-title">Attributes</div>
-                                        <button onclick="addAttributeElement(this)" type="button" class="add-attribute-btn">
+                                        <button onclick="addAttributeElement(this)" type="button"
+                                            class="add-attribute-btn">
                                             + Add Attribute
                                         </button>
                                     </div>
                                     {{form.attributes}}
                                     {%for field in form.attributes.value|json_loads%}
-                                        <div class="attribute">
-                                            <div class="attribute-item">
-                                                <!-- <label for="">Name</label> -->
-                                                <input type="text" value="{{field.name}}">
-                                                <!-- <label for="">Value</label> -->
-                                                <input type="text" value="{{field.value}}">
-                                                <button onclick="removeAttributeElement(this)" type="button" class="delete-attribute-btn">
-                                                    ×
-                                                </button>
-                                            </div>
+                                    <div class="attribute">
+                                        <div class="attribute-item">
+                                            <!-- <label for="">Name</label> -->
+                                            <input type="text" value="{{field.name}}">
+                                            <!-- <label for="">Value</label> -->
+                                            <input type="text" value="{{field.value}}">
+                                            <button onclick="removeAttributeElement(this)" type="button"
+                                                class="delete-attribute-btn">
+                                                ×
+                                            </button>
                                         </div>
+                                    </div>
                                     {%endfor%}
                                 </div>
                             </div>
+                        </div>
                         {%endfor%}
                     </div>
-                </div>
-                <div class="submit-section">
-                    <button type="submit" class="submit-btn">Save Product</button>
+                    <div class="submit-section">
+                        <button type="submit" class="submit-btn">Save Product</button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
-<script src="{%static 'products/js/product_form.js'%}"></script>
+    <script src="{%static 'products/js/product_form.js'%}"></script>
 </body>
+
 </html>

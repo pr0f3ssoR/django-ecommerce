@@ -130,7 +130,8 @@ class ProductFetcher:
                         Prefetch(
                             'variant_attribute_value',
                             queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute')
-                        )
+                        ),
+                        'variant_image'
                     )
                 )
             ).get(id=product_id)
@@ -181,6 +182,10 @@ class ProductFetcher:
 
             serialized_variant['attributes'] = self.__serialize_attributes(variant_attribute_values)
 
+            variant_images = variant.variant_image.all()
+
+            serialized_variant['images'] = self.__serialize_images(variant_images)
+
             serialized_variants.append(serialized_variant)
         
         return serialized_variants
@@ -194,6 +199,7 @@ class ProductFetcher:
             attribute_value = vav.attribute_value.value
 
             serialized_attribute = {
+                'id':vav.id,
                 'name':attribute,
                 'value':attribute_value
             }
@@ -201,6 +207,20 @@ class ProductFetcher:
             serialized_attributes.append(serialized_attribute)
         
         return serialized_attributes
+    
+
+    def __serialize_images(self,variant_images):
+        serialized_images = []
+
+        for image in variant_images:
+            serialized_image = {
+                'id':image.id,
+                'url':image.image_url.url
+            }
+
+            serialized_images.append(serialized_image)
+        
+        return serialized_images
     
 
     def get_product(self,product_id:int):
@@ -243,9 +263,12 @@ class ProductUpsertService:
     def execute(self):
         
         product = self._upsert_product()
-        variants = self.product_data.get('variants',[])
 
-        existing_variant_map = self._get_existing_variants(product,variants)
+        input_variants = self.product_data.get('variants',[])
+
+        current_variant_qs = product.product_variant.all()
+
+        existing_variant_map = self._get_variants(product,variants)
 
         for variant_data in variants:
 
@@ -253,11 +276,39 @@ class ProductUpsertService:
             variant_attributes = variant_data['attributes']
 
             self._handle_attributes(variant,variant_attributes)
-        
-        pprint(connection.queries)
-        print(f'Number of queries: {len(connection.queries)}')
 
 
+
+    def __process_input_variants(self,input_variants,current_variants,product):
+        """
+        This method loops through over variants sent by user and extract dict of variants that already exist, variants that needs to be created
+        and array of variant ids which needs to be deleted
+
+        """
+
+        input_update_variant_map = dict()
+        input_create_variants = []
+
+
+        for variant in input_variants:
+            variant_id = variant.pop('id',None)
+            attributes = variant.get('attributes',[])
+            images = variant.get('images',[])
+
+            if variant_id:
+                input_update_variant_map[variant_id] = variant
+            else:
+                variant_obj = ProductVariant(product=product,**variant)
+                input_create_variants.append(variant_obj)
+
+            
+
+    def __process_input_attributes(self,attributes):
+
+
+        for attribute in attributes:
+            attribute_vav_id = attribute.get('id',None)
+            
 
     def _upsert_product(self):
 
@@ -266,7 +317,18 @@ class ProductUpsertService:
         product_description = self.product_data['description']
 
         try:
-            product = Product.objects.get(id=product_id)
+            product = Product.objects.prefetch_related(
+                Prefetch(
+                    'product_variant',
+                    queryset=ProductVariant.objects.prefetch_related(
+                        Prefetch(
+                            'variant_attribute_value',
+                            queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute')
+                        ),
+                        'variant_image'
+                    )
+                )
+            ).get(id=product_id)
         except Product.DoesNotExist:
             product = Product()
 

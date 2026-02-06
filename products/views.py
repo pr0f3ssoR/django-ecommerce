@@ -5,7 +5,7 @@ from .models import Product,ProductVariant,Attribute,AttributeValue,VariantAttri
 from django.db.models import Min
 from django import forms
 from django.db import transaction
-from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset
+from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,VariantImageForm
 from .utilities import ProductUpsertService,ProductFetcher
 from pprint import pprint
 
@@ -18,17 +18,26 @@ def update_product(request:HttpRequest,pk):
     errors = []
 
     if request.method == 'POST':
-        product_form = ProductVariantFormset(request.POST)
-        variant_formset = ProductForm(request.POST,prefix='variant')
+        print(request.FILES)
+        product_form = ProductForm(request.POST)
+        variant_formset = ProductVariantFormset(request.POST,request.FILES,prefix='variant')
 
 
         if product_form.is_valid() and variant_formset.is_valid():
+            for i,form in enumerate(variant_formset):
+                print(f'images for form {i}:')
+                for image in form.cleaned_data['image_input_field']:
+                    print(image)
+
 
             product_data = product_form.cleaned_data
             variants = variant_formset.cleaned_data
 
             product_upsert_service = ProductUpsertService(product_data,variants)
             product_upsert_service.execute()
+        
+        else:
+            pprint(variant_formset)
                 
 
     serialized_product = ProductFetcher().get_serialized_product(product=1)
@@ -41,25 +50,50 @@ def update_product(request:HttpRequest,pk):
     })
 
     variant_formset = ProductVariantFormset(initial=serialized_product['variants'],prefix='variant')
-    # for form in json_variant_formset:
-    #     print(form.initial['attributes'])
 
     return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'errors':errors})
     
 
 def create_product(request:HttpRequest):
     if request.method == 'POST':
-        product_form = ProductForm(request.POST)
-        variant_formset = ProductVariantFormset(request.POST,prefix='variant')
+        product_form = ProductForm(request.POST,request.FILES)
+        variant_formset = ProductVariantFormset(request.POST,request.FILES,prefix='variant')
 
         if product_form.is_valid() and variant_formset.is_valid():
+            print('Here')
+            for i,form in enumerate(variant_formset):
+                pprint(f"form: {i},{form.cleaned_data['image_input_field']}")
             product_upsert_service = ProductUpsertService(product_data=product_form.cleaned_data,variants=variant_formset.cleaned_data)
             product = product_upsert_service.execute()
             url = reverse('products:update_product',kwargs={'pk':product.id})
             return redirect(url)
+        else:
+            print('Here2')
+            pprint(product_form.errors)
+            pprint(variant_formset.errors)
+    
+    variant_image_form = VariantImageForm()
 
     product_form = ProductForm()
     variant_formset = ProductVariantFormset(prefix='variant')
-    return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset})
+    return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'variant_image_form':variant_image_form})
 
     
+
+def image_upload_testing(request:HttpRequest):
+    from .view_forms import ImageForm,ImageFormset
+
+    if request.method == 'POST':
+        pprint(request.FILES)
+        image_formset = ImageFormset(request.POST,request.FILES)
+
+        if image_formset.is_valid():
+            # print(image_formset.cleaned_data)
+            pass
+
+
+        
+
+    image_formset = ImageFormset()
+
+    return render(request,'products/test.html',{'formset':image_formset})

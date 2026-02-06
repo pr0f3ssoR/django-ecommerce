@@ -26,7 +26,8 @@ class ProductFetcher:
                         Prefetch(
                             'variant_attribute_value',
                             queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute')
-                        )
+                        ),
+                        'variant_image'
                     )
                 )
             ).get(id=product_id)
@@ -77,6 +78,10 @@ class ProductFetcher:
 
             serialized_variant['attributes'] = self.__serialize_attributes(variant_attribute_values)
 
+            variant_images = variant.variant_image.all()
+
+            serialized_variant['images'] = self.__serialize_images(variant_images)
+
             serialized_variants.append(serialized_variant)
         
         return serialized_variants
@@ -97,6 +102,20 @@ class ProductFetcher:
             serialized_attributes.append(serialized_attribute)
         
         return serialized_attributes
+    
+
+    def __serialize_images(self,variant_images):
+        serialized_images = []
+
+        for image in variant_images:
+            serialized_image = {
+                'id':image.id,
+                'url':image.image_url.url
+            }
+
+            serialized_images.append(serialized_image)
+        
+        return serialized_images
     
 
     def get_product(self,product_id:int):

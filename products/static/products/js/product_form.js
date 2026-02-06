@@ -6,17 +6,17 @@
 //         function initializeVariants() {
 //             const formContent = document.querySelector('.form-content');
 //             const variantsContainer = document.getElementById('variantsContainer');
-            
+
 //             // Get management form first
 //             const managementForm = document.querySelector('[name="form-TOTAL_FORMS"]').parentElement;
 //             variantsContainer.appendChild(managementForm);
-            
+
 //             // Find all variant form paragraphs (they're rendered by Django outside the container)
 //             const allParagraphs = Array.from(formContent.querySelectorAll('p'));
-            
+
 //             // Group paragraphs by variant index
 //             const variantGroups = {};
-            
+
 //             allParagraphs.forEach(p => {
 //                 // Check if this paragraph contains a variant field
 //                 const input = p.querySelector('input, textarea');
@@ -46,7 +46,7 @@
 
 //         function createVariantCard(index, variant) {
 //             const variantsContainer = document.getElementById('variantsContainer');
-            
+
 //             // Create variant card
 //             const variantCard = document.createElement('div');
 //             variantCard.className = 'variant-card';
@@ -64,7 +64,7 @@
 //             // Create fields container
 //             const fieldsContainer = document.createElement('div');
 //             fieldsContainer.className = 'variant-fields';
-            
+
 //             // Add price and stock fields
 //             if (variant.price) {
 //                 fieldsContainer.appendChild(variant.price);
@@ -77,7 +77,7 @@
 //             // Create attributes section
 //             const attributesSection = document.createElement('div');
 //             attributesSection.className = 'attributes-section';
-            
+
 //             const attributesHeader = document.createElement('div');
 //             attributesHeader.className = 'attributes-header';
 //             attributesHeader.innerHTML = `
@@ -96,7 +96,7 @@
 //             if (variant.attributes) {
 //                 const textarea = variant.attributes.querySelector('textarea');
 //                 variantCard.appendChild(variant.attributes);
-                
+
 //                 // Parse and render attributes
 //                 try {
 //                     const attrs = JSON.parse(textarea.value);
@@ -119,7 +119,7 @@
 
 //         function addAttributeItem(variantIndex, attribute = {name: '', value: ''}, attrIndex = null) {
 //             const attributesContainer = document.getElementById(`attributes-${variantIndex}`);
-            
+
 //             if (attrIndex === null) {
 //                 const currentAttrs = attributesContainer.querySelectorAll('.attribute-item');
 //                 attrIndex = currentAttrs.length;
@@ -128,7 +128,7 @@
 //             const attributeItem = document.createElement('div');
 //             attributeItem.className = 'attribute-item';
 //             attributeItem.dataset.attrIndex = attrIndex;
-            
+
 //             attributeItem.innerHTML = `
 //                 <input type="text" 
 //                        placeholder="Name (e.g., Size)" 
@@ -165,19 +165,19 @@
 //         function updateAttributesJSON(variantIndex) {
 //             const attributesContainer = document.getElementById(`attributes-${variantIndex}`);
 //             const attributeItems = attributesContainer.querySelectorAll('.attribute-item');
-            
+
 //             const attributes = [];
 //             attributeItems.forEach((item, idx) => {
 //                 const nameInput = item.querySelector('[data-field="name"]');
 //                 const valueInput = item.querySelector('[data-field="value"]');
-                
+
 //                 if (nameInput.value || valueInput.value) {
 //                     attributes.push({
 //                         name: nameInput.value,
 //                         value: valueInput.value
 //                     });
 //                 }
-                
+
 //                 // Update data-attr-index
 //                 item.dataset.attrIndex = idx;
 //                 const deleteBtn = item.querySelector('.delete-attribute-btn');
@@ -200,11 +200,11 @@
 //         function setupAddVariantButton() {
 //             const addBtn = document.getElementById('addVariantBtn');
 //             const totalFormsInput = document.querySelector('[name="form-TOTAL_FORMS"]');
-            
+
 //             addBtn.addEventListener('click', function() {
 //                 const currentTotal = parseInt(totalFormsInput.value);
 //                 const newIndex = currentTotal;
-                
+
 //                 // Create new empty variant structure
 //                 const newVariant = {
 //                     price: createFormField('price', newIndex, 'number', ''),
@@ -223,7 +223,7 @@
 //             const label = document.createElement('label');
 //             label.setAttribute('for', `id_form-${index}-${fieldName}`);
 //             label.textContent = fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + ':';
-            
+
 //             let input;
 //             if (type === 'textarea') {
 //                 input = document.createElement('textarea');
@@ -233,17 +233,17 @@
 //                 input.type = type;
 //                 input.value = value;
 //             }
-            
+
 //             input.name = `form-${index}-${fieldName}`;
 //             input.id = `id_form-${index}-${fieldName}`;
-            
+
 //             if (type === 'number') {
 //                 input.min = '0';
 //             }
-            
+
 //             p.appendChild(label);
 //             p.appendChild(input);
-            
+
 //             return p;
 //         }
 
@@ -257,11 +257,11 @@
 //         });
 
 
-function removeAttributeElement(btn){
+function removeAttributeElement(btn) {
     btn.parentElement.parentElement.remove()
 }
 
-function addAttributeElement(btn){
+function addAttributeElement(btn) {
     const attributeSection = btn.parentElement
 
     const attributeElement = `
@@ -278,8 +278,71 @@ function addAttributeElement(btn){
     attributeSection.insertAdjacentHTML('afterend', attributeElement.trim())
 }
 
+const dataTransferObject = {}
 
-function addVariant(){
+function addImage(e) {
+    const imageConatiner = e.parentElement.querySelector('.images-grid')
+    const hiddenImageField = e.parentElement.querySelector('input')
+
+
+    const newFileInput = document.createElement('input');
+    newFileInput.type = 'file';
+    newFileInput.multiple = true; // Allow multiple selection
+
+    newFileInput.addEventListener('change',()=>{
+        const file = newFileInput.files[0]
+
+        if (!file) return;
+
+        // append file to DataTransfer
+
+        const key = hiddenImageField.name
+
+        dataTransferObject[key] = dataTransferObject[key] ?? new DataTransfer()
+
+        dataTransferObject[key].items.add(file);
+
+        // assign back to input
+
+
+        newFileInput.files = dataTransferObject[key].files;
+
+        newFileInput.value = "";
+
+        hiddenImageField.files = dataTransferObject[key].files
+
+        showPreview(file,imageConatiner)
+
+    })
+
+    newFileInput.click()
+}
+
+function showPreview(file,imagesContainer) {
+ const imgUrl = URL.createObjectURL(file);
+    
+    const html = `
+        <div class="image-item">
+            <img class="image-preview" src="${imgUrl}" onload="URL.revokeObjectURL(this.src)">
+            <div class="image-info">
+                <div class="image-name" title=""</div>
+                <div class="image-actions">
+                    <button type="button" class="delete-image-btn-card">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    imagesContainer.insertAdjacentHTML('beforeend', html);
+
+}
+
+
+
+
+function addVariant() {
     const varintHTML = `    <div class="variant-card">
                                 <div class="variant-header">
                                     <div class="variant-title">Variant</div>
@@ -310,38 +373,38 @@ function addVariant(){
                             </div>
                             `
 
-        const varinatContainer = document.getElementById('variantsContainer')
+    const varinatContainer = document.getElementById('variantsContainer')
 
-        varinatContainer.insertAdjacentHTML('afterbegin',varintHTML)
+    varinatContainer.insertAdjacentHTML('afterbegin', varintHTML)
 }
 
 
 
-function deleteVariant(btn){
+function deleteVariant(btn) {
     const variantElement = btn.parentElement.parentElement
-    
+
     const hiddenInput = variantElement.querySelector('.hidden-input input')
 
-    const deletedVariantId = hiddenInput ? hiddenInput.value: null
+    const deletedVariantId = hiddenInput ? hiddenInput.value : null
 
 
-    if (hiddenInput && deletedVariantId){
+    if (hiddenInput && deletedVariantId) {
         const hiddenContainer = document.getElementById('deletedVariantInputs')
 
-        hiddenContainer.insertAdjacentHTML('afterbegin',`<input hidden type="number" value="${deletedVariantId}">`)
+        hiddenContainer.insertAdjacentHTML('afterbegin', `<input hidden type="number" value="${deletedVariantId}">`)
     }
 
     variantElement.remove()
 }
 
 
-function attributesTypeConversion(attributeInputs,textArea){
+function attributesTypeConversion(attributeInputs, textArea) {
 
     const attributesArray = []
-    for (let index = 0; index < attributeInputs.length; index+=2) {
+    for (let index = 0; index < attributeInputs.length; index += 2) {
 
         const name = attributeInputs[index]?.value?.trim()
-        const value = attributeInputs[index+1]?.value?.trim()
+        const value = attributeInputs[index + 1]?.value?.trim()
 
         if (name &&
             value &&
@@ -349,13 +412,13 @@ function attributesTypeConversion(attributeInputs,textArea){
             value !== "undefined" &&
             name !== "null" &&
             value !== "null"
-        ){
-            attributesArray.push({name:name,value:value})
+        ) {
+            attributesArray.push({ name: name, value: value })
         }
-        
+
     }
 
-    textArea.value =  JSON.stringify(attributesArray)
+    textArea.value = JSON.stringify(attributesArray)
 
 }
 
@@ -374,7 +437,7 @@ function getIndexes(length, initalDataIndexes) {
 }
 
 
-function fixFieldsIndex(variantCards){
+function fixFieldsIndex(variantCards) {
 
     for (let index = 0; index < variantCards.length; index++) {
         const card = variantCards[index];
@@ -386,19 +449,19 @@ function fixFieldsIndex(variantCards){
 
             const nameVals = field.name.split('-')
 
-            const [prefix,fieldName,fieldIndex] = [nameVals[0],nameVals.at(-1),index]
+            const [prefix, fieldName, fieldIndex] = [nameVals[0], nameVals.at(-1), index]
 
             field.name = `${prefix}-${fieldIndex}-${fieldName}`
 
-            
+
         }
 
 
-        
+
     }
 }
 
-function fixHiddenFormFields(formLength){
+function fixHiddenFormFields(formLength) {
     const hiddenInputContainer = document.getElementById('hiddenInputs')
 
     const initialFormInput = hiddenInputContainer.querySelector('input[name="variant-INITIAL_FORMS"]')
@@ -409,14 +472,14 @@ function fixHiddenFormFields(formLength){
     totalFormInput.value = formLength
 }
 
-function getInitialDataIndexes(variantCards){
+function getInitialDataIndexes(variantCards) {
 
     const indexes = new Set()
 
     variantCards.forEach(card => {
         const hiddenIdContainer = card.querySelector('.variant-fields .hidden-input')
 
-        if(hiddenIdContainer){
+        if (hiddenIdContainer) {
             const index = hiddenIdContainer.querySelector('input').name.split('-')[1]
             indexes.add(String(index))
         }
@@ -427,8 +490,7 @@ function getInitialDataIndexes(variantCards){
 
 const form = document.getElementById('productForm')
 
-form.addEventListener('submit',e => {
-
+form.addEventListener('submit', e => {
 
     const variantCards = document.getElementById('variantsContainer').querySelectorAll('.variant-card')
 
@@ -441,7 +503,7 @@ form.addEventListener('submit',e => {
 
         textArea = attributeSection.querySelector('textarea')
 
-        attributesTypeConversion(attributeInputs,textArea)
+        attributesTypeConversion(attributeInputs, textArea)
 
     });
 
