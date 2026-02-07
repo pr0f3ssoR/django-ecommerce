@@ -1,58 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test</title>
 </head>
+
 <body>
     <form enctype="multipart/form-data" method="post" action="">
         {%csrf_token%}
         {{formset.as_p}}
         <button>Submit</button>
     </form>
+
+
+    <div class="images-section">
+        <div class="images-header">
+            <div class="subsection-title">Images</div>
+        </div>
+        <input data-index="" type="file" name="variant-0-image_input_field" multiple=""
+            id="id_variant-0-image_input_field">
+        <div class="image-upload-area" onclick="addImage(this)">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click to upload</div>
+            <div class="upload-hint">PNG, JPG, GIF up to 10MB</div>
+        </div>
+        <div class="images-grid">
+            <textarea name="variant-0-images" cols="40" rows="10" id="id_variant-0-images"></textarea>
+        </div>
+    </div>
+
 </body>
 <script>
     const fileInput = document.getElementById('id_form-0-image');
 
-// Store previously selected files
-let selectedFiles = [];
+    // Store previously selected files
+    let selectedFiles = [];
 
-// Listen for click event on the file input
-fileInput.addEventListener('click', function(e) {
-    // Prevent the default file dialog from opening
-    e.preventDefault();
-    
-    // Create a new file input element
-    const newFileInput = document.createElement('input');
-    newFileInput.type = 'file';
-    newFileInput.multiple = true; // Allow multiple selection
-    
-    // When user selects files from the dialog
-    newFileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            // Convert FileList to Array and append to our collection
-            const newFiles = Array.from(this.files);
-            selectedFiles = [...selectedFiles, ...newFiles];
-            
-            // Create a new DataTransfer object to hold all files
-            const dataTransfer = new DataTransfer();
-            
-            // Add all selected files to the DataTransfer
-            selectedFiles.forEach(file => {
-                dataTransfer.items.add(file);
-            });
-            
-            // Update the original file input with all files
-            fileInput.files = dataTransfer.files;
-            
-            // Trigger change event on the original input
-            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-        }
+    // Listen for click event on the file input
+    fileInput.addEventListener('click', function (e) {
+        // Prevent the default file dialog from opening
+        e.preventDefault();
+
+        // Create a new file input element
+        const newFileInput = document.createElement('input');
+        newFileInput.type = 'file';
+        newFileInput.multiple = true; // Allow multiple selection
+
+        // When user selects files from the dialog
+        newFileInput.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                // Convert FileList to Array and append to our collection
+                const newFiles = Array.from(this.files);
+                selectedFiles = [...selectedFiles, ...newFiles];
+
+                // Create a new DataTransfer object to hold all files
+                const dataTransfer = new DataTransfer();
+
+                // Add all selected files to the DataTransfer
+                selectedFiles.forEach(file => {
+                    dataTransfer.items.add(file);
+                });
+
+                // Update the original file input with all files
+                fileInput.files = dataTransfer.files;
+
+                // Trigger change event on the original input
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+
+        // Trigger the file selection dialog
+        newFileInput.click();
     });
-    
-    // Trigger the file selection dialog
-    newFileInput.click();
-});
 </script>
+
 </html>

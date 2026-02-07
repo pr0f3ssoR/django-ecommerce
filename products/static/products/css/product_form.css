@@ -366,6 +366,12 @@ body {
     margin-top: 16px;
 }
 
+.existing-images,
+.new-images{
+    display: inline;
+
+}
+
 .attributes-header,
 .images-header {
     display: flex;

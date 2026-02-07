@@ -76,62 +76,58 @@
                                     <div class="subsection-title">Images</div>
                                 </div>
                                 <!-- <input type="file" id="image-upload-0" hidden accept="image/*" multiple> -->
-                                 {{form.image_input_field}}
+                                {{form.image_input_field}}
                                 <div class="image-upload-area" onclick="addImage(this)">
                                     <div class="upload-icon">📷</div>
                                     <div class="upload-text">Click to upload</div>
                                     <div class="upload-hint">PNG, JPG, GIF up to 10MB</div>
                                 </div>
+                                
                                 <div class="images-grid">
-                                    {{form.images}}
-                                    {%for image in form.images.value|json_loads%}
+                                        {%for image in form.images.value|json_loads%}
                                         <div class="image-item">
-                                            <img class="image-preview"
-                                                src="{{image.url}}"
-                                                alt="">
+                                            <img class="image-preview" src="{{image.url}}" alt="">
                                             <div class="image-info">
                                                 <div class="image-name" title="${img.name}">Image</div>
                                                 <div class="image-actions">
-                                                    <button type="button" class="delete-image-btn-card">
+                                                    <button onclick="deleteImage(this)" type="button" class="delete-image-btn-card">
                                                         Delete
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
-                                    {%endfor%}
+                                        {%endfor%}
+                                </div>                                
+                            </div>
+                            <div class="attributes-section">
+                                <div class="attributes-header">
+                                    <div class="attributes-title">Attributes</div>
+                                    <button onclick="addAttributeElement(this)" type="button" class="add-attribute-btn">
+                                        + Add Attribute
+                                    </button>
                                 </div>
-                                <div class="attributes-section">
-                                    <div class="attributes-header">
-                                        <div class="attributes-title">Attributes</div>
-                                        <button onclick="addAttributeElement(this)" type="button"
-                                            class="add-attribute-btn">
-                                            + Add Attribute
+                                {{form.attributes}}
+                                {%for field in form.attributes.value|json_loads%}
+                                <div class="attribute">
+                                    <div class="attribute-item">
+                                        <!-- <label for="">Name</label> -->
+                                        <input type="text" value="{{field.name}}">
+                                        <!-- <label for="">Value</label> -->
+                                        <input type="text" value="{{field.value}}">
+                                        <button onclick="removeAttributeElement(this)" type="button"
+                                            class="delete-attribute-btn">
+                                            ×
                                         </button>
                                     </div>
-                                    {{form.attributes}}
-                                    {%for field in form.attributes.value|json_loads%}
-                                    <div class="attribute">
-                                        <div class="attribute-item">
-                                            <!-- <label for="">Name</label> -->
-                                            <input type="text" value="{{field.name}}">
-                                            <!-- <label for="">Value</label> -->
-                                            <input type="text" value="{{field.value}}">
-                                            <button onclick="removeAttributeElement(this)" type="button"
-                                                class="delete-attribute-btn">
-                                                ×
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {%endfor%}
                                 </div>
+                                {%endfor%}
                             </div>
                         </div>
                         {%endfor%}
+                        <div class="submit-section">
+                            <button type="submit" class="submit-btn">Save Product</button>
+                        </div>
                     </div>
-                    <div class="submit-section">
-                        <button type="submit" class="submit-btn">Save Product</button>
-                    </div>
-                </div>
             </form>
         </div>
     </div>
