@@ -44,6 +44,11 @@
                     {{variant_formset.management_form}}
                 </div>
                 <div id="deletedVariantInputs"></div>
+                <div id="deleteInputs">
+                    <div id="imageInputContainer">{{delete_form.delete_image_ids}}</div>
+                    <div id="variantIdContainer">{{delete_form.delete_variant_ids}}</div>
+
+                </div>
                 <div class="variants-section">
                     <div class="variants-header">
                         <div class="section-title">Product Variants</div>
@@ -75,8 +80,9 @@
                                 <div class="images-header">
                                     <div class="subsection-title">Images</div>
                                 </div>
-                                <!-- <input type="file" id="image-upload-0" hidden accept="image/*" multiple> -->
-                                {{form.image_input_field}}
+                                <div class="hidden-input">
+                                    {{form.image_input_field}}
+                                </div>
                                 <div class="image-upload-area" onclick="addImage(this)">
                                     <div class="upload-icon">📷</div>
                                     <div class="upload-text">Click to upload</div>
@@ -86,9 +92,9 @@
                                 <div class="images-grid">
                                         {%for image in form.images.value|json_loads%}
                                         <div class="image-item">
-                                            <img class="image-preview" src="{{image.url}}" alt="">
+                                            <img id="image-id-{{image.id}}" data-existingImage="true" class="image-preview" src="{{image.url}}" alt="">
                                             <div class="image-info">
-                                                <div class="image-name" title="${img.name}">Image</div>
+                                                <div class="image-name" title="{{image.name}}">{{image.name}}</div>
                                                 <div class="image-actions">
                                                     <button onclick="deleteImage(this)" type="button" class="delete-image-btn-card">
                                                         Delete

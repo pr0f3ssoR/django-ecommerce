@@ -502,6 +502,7 @@ label {
     pointer-events: none;
 }
 
-.hidden-input {
+.hidden-input,
+#deleteInputs {
     display: none;
 }

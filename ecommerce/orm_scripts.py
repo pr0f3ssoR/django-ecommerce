@@ -25,6 +25,7 @@ from products.models import (
         AttributeValue,
         ProductVariant,
         VariantAttributeValue,
+        VariantImage
     )
 
 def test2():
@@ -447,9 +448,24 @@ def why_extra_queries():
 # test2()
 # product = ProductFetcher().get_product(product_id=1)
 
-serialized_product = ProductFetcher().get_serialized_product(product=1)
+# serialized_product = ProductFetcher().get_serialized_product(product=1)
+
+def null_images():
+    for img in VariantImage.objects.all(): 
+        if not img.image_url:  
+            img.delete()
+
+def delete_image(pk):
+    try:
+        variant_image = VariantImage.objects.get(pk=pk)
+        variant_image.delete()
+    except VariantImage.DoesNotExist:
+        pass
+
 
 # print(product)
-print(serialized_product)
-pprint(connection.queries)
-print(f'Number of queries: {len(connection.queries)}')
+
+null_images()
+# delete_image(30)
+# pprint(connection.queries)
+# print(f'Number of queries: {len(connection.queries)}')

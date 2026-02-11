@@ -2,6 +2,10 @@
 
 let variantCardLength = 0
 
+let deletedImageIds = []
+
+let deletedVariantIds = []
+
 function isValid(value) {
   return value !== null && 
          value !== undefined && 
@@ -80,7 +84,7 @@ function showPreview(file,imagesContainer) {
 
     const html = `
         <div class="image-item">
-            <img id="${fileId}" class="image-preview" src="${imgUrl}" onload="URL.revokeObjectURL(this.src)">
+            <img data-existingImage="false" id="${fileId}" class="image-preview" src="${imgUrl}" onload="URL.revokeObjectURL(this.src)">
             <div class="image-info">
                 <div class="image-actions">
                     <button onclick="deleteImage(this)" type="button" class="delete-image-btn-card">
@@ -101,38 +105,50 @@ function deleteImage(btn){
 
     const imgId = img.id
 
-    if (isValid(imgId) === true){
-        const imageSection = imageContainer.parentElement.parentElement
+    const existingImage = img.dataset.existingimage
 
-        const input = imageSection.querySelector('input')
+    if (existingImage === 'false'){
 
-        const dataTransferKey = input.name
+        if (isValid(imgId) === true){
+            const imageSection = imageContainer.parentElement.parentElement
 
-        const dataTransfer = dataTransferObject[dataTransferKey]
+            const input = imageSection.querySelector('input')
 
-        const newDataTransfer = new DataTransfer()
+            const dataTransferKey = input.name
 
-        if (dataTransfer){
-            const imageFiles = dataTransfer.files
+            const dataTransfer = dataTransferObject[dataTransferKey]
+
+            const newDataTransfer = new DataTransfer()
+
+            if (dataTransfer){
+                const imageFiles = dataTransfer.files
 
 
-            for (let index = 0; index < imageFiles.length; index++) {
-                
-                const imageFile = imageFiles[index];
+                for (let index = 0; index < imageFiles.length; index++) {
+                    
+                    const imageFile = imageFiles[index];
 
-                const imageFileId = getFileId(imageFile)
+                    const imageFileId = getFileId(imageFile)
 
-                if (imgId !== imageFileId) newDataTransfer.items.add(imageFile)
-                
-                
-                
+                    if (imgId !== imageFileId) newDataTransfer.items.add(imageFile)
+                    
+                    
+                    
+                }
             }
+
+            dataTransferObject[dataTransferKey] = newDataTransfer
+
+            input.files = newDataTransfer.files
         }
-
-        dataTransferObject[dataTransferKey] = newDataTransfer
-
-        input.files = newDataTransfer.files
     }
+
+    else{
+        const imageId = imgId.split('-')
+        deletedImageIds.push(imageId.at(-1))
+
+    }
+
 
     imageContainer.remove()
     // console.log(imageContainer)
@@ -197,20 +213,25 @@ function addVariant() {
 }
 
 
+function dataTranserCleanUp(variantElement){
+    const input = variantElement.querySelector('.images-section input')
+
+    const imageKey = input.name
+
+    delete dataTransferObject[imageKey]
+}
+
 
 function deleteVariant(btn) {
     const variantElement = btn.parentElement.parentElement
 
-    const hiddenInput = variantElement.querySelector('.hidden-input input')
+    dataTranserCleanUp(variantElement)
 
-    const deletedVariantId = hiddenInput ? hiddenInput.value : null
+    // Move the delete variant id to deleteInputs
 
+    const variandId = variantElement.querySelector('.variant-fields .hidden-input input').value
 
-    if (hiddenInput && deletedVariantId) {
-        const hiddenContainer = document.getElementById('deletedVariantInputs')
-
-        hiddenContainer.insertAdjacentHTML('afterbegin', `<input hidden type="number" value="${deletedVariantId}">`)
-    }
+    deletedVariantIds.push(variandId)
 
     variantElement.remove()
 }
@@ -260,7 +281,7 @@ function fixFieldsIndex(variantCards) {
     for (let index = 0; index < variantCards.length; index++) {
         const card = variantCards[index];
 
-        const fields = card.querySelectorAll('.variant-fields input,.attributes-section textarea')
+        const fields = card.querySelectorAll('.variant-fields input,.attributes-section textarea,.images-section input')
 
         for (let i = 0; i < fields.length; i++) {
             const field = fields[i];
@@ -306,6 +327,19 @@ function getInitialDataIndexes(variantCards) {
     return indexes
 }
 
+function handleDeletedInputs(){
+
+    const deletedInputsContainer = document.getElementById('deleteInputs')
+    const deletedImageInput = deletedInputsContainer.querySelector('#imageInputContainer textarea')
+
+    const deletedVariantInput =  deletedInputsContainer.querySelector('#variantIdContainer textarea')
+
+    deletedImageInput.value = JSON.stringify(deletedImageIds)
+
+    deletedVariantInput.value = JSON.stringify(deletedVariantIds)
+        
+}
+
 const form = document.getElementById('productForm')
 
 form.addEventListener('submit', e => {
@@ -329,6 +363,8 @@ form.addEventListener('submit', e => {
 
     fixFieldsIndex(variantCards)
     fixHiddenFormFields(formLength)
+
+    handleDeletedInputs()
 
 })
 

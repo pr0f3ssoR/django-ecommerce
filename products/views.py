@@ -5,8 +5,8 @@ from .models import Product,ProductVariant,Attribute,AttributeValue,VariantAttri
 from django.db.models import Min
 from django import forms
 from django.db import transaction
-from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,VariantImageForm
-from .utilities import ProductUpsertService,ProductFetcher
+from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,VariantImageForm,DeleteForm
+from .utilities import ProductUpsertService,ProductFetcher,handle_deletion
 from pprint import pprint
 
 def product_view_dummy(request):
@@ -18,29 +18,31 @@ def update_product(request:HttpRequest,pk):
     errors = []
 
     if request.method == 'POST':
-        print(request.FILES)
         product_form = ProductForm(request.POST)
         variant_formset = ProductVariantFormset(request.POST,request.FILES,prefix='variant')
+        delete_form = DeleteForm(request.POST)
 
 
-        if product_form.is_valid() and variant_formset.is_valid():
-            for i,form in enumerate(variant_formset):
-                print(f'images for form {i}:')
-                for image in form.cleaned_data['image_input_field']:
-                    print(image)
-
-
+        if product_form.is_valid() and variant_formset.is_valid() and delete_form.is_valid():
             product_data = product_form.cleaned_data
-            variants = variant_formset.cleaned_data
+            variants_data = variant_formset.cleaned_data
+            delete_form_data = delete_form.cleaned_data
 
-            product_upsert_service = ProductUpsertService(product_data,variants)
+            product_upsert_service = ProductUpsertService(product_data,variants_data)
             product_upsert_service.execute()
+
+            delete_product_id = delete_form_data.get('delete_product_id',None)
+            delete_variant_ids = delete_form_data.get('delete_variant_ids',[])
+            delete_image_ids = delete_form_data.get('delete_image_ids',[])
+
+            handle_deletion(delete_product_id,delete_variant_ids,delete_image_ids)
+
         
         else:
             pprint(variant_formset)
                 
 
-    serialized_product = ProductFetcher().get_serialized_product(product=1)
+    serialized_product = ProductFetcher().get_serialized_product(product=pk)
 
 
     product_form = ProductForm(initial={
@@ -49,9 +51,12 @@ def update_product(request:HttpRequest,pk):
         'description':serialized_product['description']
     })
 
+
     variant_formset = ProductVariantFormset(initial=serialized_product['variants'],prefix='variant')
 
-    return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'errors':errors})
+    delete_form = DeleteForm()
+
+    return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'delete_form':delete_form,'errors':errors})
     
 
 def create_product(request:HttpRequest):

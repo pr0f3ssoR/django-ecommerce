@@ -1,4 +1,4 @@
-from .models import ProductVariant,VariantAttributeValue,Product,Attribute,AttributeValue
+from .models import ProductVariant,VariantAttributeValue,Product,Attribute,AttributeValue,VariantImage
 from django.db.models import Prefetch
 from django.db import transaction
 from typing import Union
@@ -25,10 +25,10 @@ class ProductFetcher:
                     queryset=ProductVariant.objects.prefetch_related(
                         Prefetch(
                             'variant_attribute_value',
-                            queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute')
+                            queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute').order_by('-id')
                         ),
                         'variant_image'
-                    )
+                    ).order_by('-id')
                 )
             ).get(id=product_id)
 
@@ -110,7 +110,8 @@ class ProductFetcher:
         for image in variant_images:
             serialized_image = {
                 'id':image.id,
-                'url':image.image_url.url
+                'url':image.image_url.url,
+                'name':image.image_url.name.split('/')[-1]
             }
 
             serialized_images.append(serialized_image)
@@ -163,12 +164,40 @@ class ProductUpsertService:
 
         existing_variant_map = self._get_existing_variants(product,variants)
 
+        existing_variants = []
+        new_variants = []
+
+        new_images = []
+        new_attributes = []
+
         for variant_data in variants:
 
-            variant = self._upsert_variant(product,variant_data,existing_variant_map)
+            new_variant,existing_variant = self._upsert_variant(product,variant_data,existing_variant_map)
+            if new_variant:
+                new_variants.append(new_variant)
+            elif existing_variant:
+                existing_variants.append(existing_variant)
             variant_attributes = variant_data['attributes']
+            variant_images = variant_data.get('image_input_field',None)
 
-            self._handle_attributes(variant,variant_attributes)
+            variant_attributes = self._handle_attributes(new_variant if new_variant else existing_variant,variant_attributes)
+
+            new_attributes.extend(variant_attributes)
+
+            variant_images = self._handle_images(new_variant if new_variant else existing_variant,variant_images)
+            new_images.extend(variant_images)
+
+        vbc = VariantsBulkCreate()
+        vbc.bulk_create(new_variants)
+
+        vbu = VariantBulkUpdate()
+        vbu.bulk_update(existing_variants)
+
+        ibc = ImagesBulkCreate()
+        ibc.bulk_create(new_images)
+
+        vabc = VariantAttributesBulkCreate()
+        vabc.bulk_create(new_attributes)
         
         return product
 
@@ -195,16 +224,20 @@ class ProductUpsertService:
         variant_price = variant_data['price']
         variant_stock = variant_data['stock']
 
-        if not variant_id:
-            variant = ProductVariant(product=product)
-        else:
-            variant = existing_variant_map.get(variant_id)
-        
-        variant.price = variant_price
-        variant.stock = variant_stock
-        variant.save()
+        new_variant = None
+        existing_variant = None
 
-        return variant
+        if not variant_id:
+            new_variant = ProductVariant(product=product)
+            new_variant.price = variant_price
+            new_variant.stock = variant_stock
+        else:
+            existing_variant = existing_variant_map.get(variant_id,None)
+            existing_variant.price = variant_price
+            existing_variant.stock = variant_stock
+        # variant.save()
+
+        return new_variant,existing_variant
 
 
     def _get_existing_variants(self,product,variants):
@@ -222,12 +255,39 @@ class ProductUpsertService:
 
     def _handle_attributes(self,variant,attributes):
 
+        # First delete all rows in VariantAttributeValue
+
+        if variant.pk:
+            VariantAttributeValue.objects.filter(variant=variant).delete()
+
+        variant_attributes = []
+
         for attribute_data in attributes:
             attribute_obj = self._get_attribute_obj(attribute_data)
             attribute_value_obj = self._get_attribute_value_obj(attribute_obj,attribute_data)
 
             vav_obj = self._upsert_variant_attribute_value(variant,attribute_value_obj)
-            
+
+            variant_attributes.append(vav_obj)
+
+        return variant_attributes
+
+
+    def _handle_images(self,variant,images):
+        if not variant.pk:
+            # print('Here')
+            # print(variant)
+            # print(images)
+            pass
+        new_variant_images = []
+        for image in images:
+            if image:
+                variant_image = VariantImage(variant=variant,image_url=image)
+                new_variant_images.append(variant_image)
+
+        return new_variant_images
+
+                
     
 
     def _get_attribute_obj(self,attribute_data):
@@ -261,10 +321,46 @@ class ProductUpsertService:
         return attribute_value_obj
 
     def _upsert_variant_attribute_value(self,variant,attribute_value_obj):
-        try:
-            vav_obj = VariantAttributeValue.objects.get(variant=variant,attribute_value=attribute_value_obj)
-        except VariantAttributeValue.DoesNotExist:
-            vav_obj = VariantAttributeValue(variant=variant,attribute_value=attribute_value_obj)
-            vav_obj.save()
+        vav_obj = VariantAttributeValue(variant=variant,attribute_value=attribute_value_obj)
 
-            return vav_obj
+        return vav_obj
+        
+
+class VariantsBulkCreate:
+    def bulk_create(self,new_variants):
+        if new_variants:
+            return ProductVariant.objects.bulk_create(new_variants)
+
+class VariantBulkUpdate:
+    def bulk_update(self,existing_variants):
+        if existing_variants:
+            return ProductVariant.objects.bulk_update(existing_variants,fields=['price','stock'])
+    
+class ImagesBulkCreate:
+    def bulk_create(self,new_images):
+        if new_images:
+            return VariantImage.objects.bulk_create(new_images)
+        
+
+class VariantAttributesBulkCreate:
+    def bulk_create(self,new_attributes):
+        if new_attributes:
+            return VariantAttributeValue.objects.bulk_create(new_attributes)
+        
+
+def handle_deletion(product_id,variant_ids,image_ids):
+    if product_id:
+        ProductVariant.objects.get(id=product_id).delete()
+
+    if variant_ids:
+        ProductVariant.objects.filter(id__in=variant_ids).delete()
+
+    if image_ids:
+        for image_id in image_ids:
+            try:
+                variant_image = VariantImage.objects.get(id=image_id)
+                # delete file from storage
+                variant_image.image_url.delete(save=False)
+                variant_image.delete()
+            except VariantImage.DoesNotExist:
+                pass
