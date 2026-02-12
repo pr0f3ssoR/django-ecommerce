@@ -1,6 +1,6 @@
 from .models import ProductVariant,VariantAttributeValue,Product,Attribute,AttributeValue,VariantImage
 from django.db.models import Prefetch
-from django.db import transaction
+from django.db import transaction,connection
 from typing import Union
 
 class ProductFetcher:
@@ -170,6 +170,10 @@ class ProductUpsertService:
         new_images = []
         new_attributes = []
 
+        # First delete existing attributes from all variants
+
+        self.delete_variant_attributes(product)
+
         for variant_data in variants:
 
             new_variant,existing_variant = self._upsert_variant(product,variant_data,existing_variant_map)
@@ -198,6 +202,8 @@ class ProductUpsertService:
 
         vabc = VariantAttributesBulkCreate()
         vabc.bulk_create(new_attributes)
+
+        print(f'Number of queries in upesert class execute method: {len(connection.queries)}')
         
         return product
 
@@ -248,18 +254,12 @@ class ProductUpsertService:
             variant_id = variant_data.get('id')
             if variant_id: existing_variant_ids.append(variant_id)
 
-        existing_variants_map= ProductVariant.objects.filter(product=product,id__in=existing_variant_ids).select_related('product').in_bulk()
+        existing_variants_map= ProductVariant.objects.filter(product=product,id__in=existing_variant_ids).in_bulk()
 
         return existing_variants_map
     
 
     def _handle_attributes(self,variant,attributes):
-
-        # First delete all rows in VariantAttributeValue
-
-        if variant.pk:
-            VariantAttributeValue.objects.filter(variant=variant).delete()
-
         variant_attributes = []
 
         for attribute_data in attributes:
@@ -275,9 +275,6 @@ class ProductUpsertService:
 
     def _handle_images(self,variant,images):
         if not variant.pk:
-            # print('Here')
-            # print(variant)
-            # print(images)
             pass
         new_variant_images = []
         for image in images:
@@ -309,11 +306,11 @@ class ProductUpsertService:
         attribute_value = attribute_data['value']
         key = (attribute_obj.id,attribute_value)
 
-        if key in self.attribute_cache:
+        if key in self.attribute_value_cache:
             attribute_value_obj = self.attribute_cache[key]
         else:
             try:
-                attribute_value_obj = AttributeValue.objects.select_related('attribute').get(attribute=attribute_obj,value=attribute_value)
+                attribute_value_obj = AttributeValue.objects.get(attribute=attribute_obj,value=attribute_value)
             except AttributeValue.DoesNotExist:
                 attribute_value_obj = AttributeValue(attribute=attribute_obj,value=attribute_value)
                 attribute_value_obj.save()
@@ -324,6 +321,9 @@ class ProductUpsertService:
         vav_obj = VariantAttributeValue(variant=variant,attribute_value=attribute_value_obj)
 
         return vav_obj
+    
+    def delete_variant_attributes(self,product):
+        VariantAttributeValue.objects.filter(variant__product=product).delete()
         
 
 class VariantsBulkCreate:

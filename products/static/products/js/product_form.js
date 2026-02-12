@@ -229,9 +229,10 @@ function deleteVariant(btn) {
 
     // Move the delete variant id to deleteInputs
 
-    const variandId = variantElement.querySelector('.variant-fields .hidden-input input').value
+    const varianInput = variantElement.querySelector('.variant-fields .hidden-input input')
 
-    deletedVariantIds.push(variandId)
+    if (isValid(varianInput)) deletedVariantIds.push(varianInput.value)
+    
 
     variantElement.remove()
 }

@@ -3,11 +3,13 @@ from django.urls import reverse
 from django.http import HttpResponse,HttpRequest,JsonResponse
 from .models import Product,ProductVariant,Attribute,AttributeValue,VariantAttributeValue
 from django.db.models import Min
+from django.db import connection
 from django import forms
 from django.db import transaction
 from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,VariantImageForm,DeleteForm
 from .utilities import ProductUpsertService,ProductFetcher,handle_deletion
 from pprint import pprint
+from django.core.paginator import Paginator
 
 def product_view_dummy(request):
     return HttpResponse('Hello there')
@@ -65,7 +67,6 @@ def create_product(request:HttpRequest):
         variant_formset = ProductVariantFormset(request.POST,request.FILES,prefix='variant')
 
         if product_form.is_valid() and variant_formset.is_valid():
-            print('Here')
             for i,form in enumerate(variant_formset):
                 pprint(f"form: {i},{form.cleaned_data['image_input_field']}")
             product_upsert_service = ProductUpsertService(product_data=product_form.cleaned_data,variants=variant_formset.cleaned_data)
@@ -73,9 +74,9 @@ def create_product(request:HttpRequest):
             url = reverse('products:update_product',kwargs={'pk':product.id})
             return redirect(url)
         else:
-            print('Here2')
             pprint(product_form.errors)
             pprint(variant_formset.errors)
+        
     
     variant_image_form = VariantImageForm()
 
@@ -84,21 +85,23 @@ def create_product(request:HttpRequest):
     return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'variant_image_form':variant_image_form})
 
     
+def list_products(request:HttpRequest):
 
-def image_upload_testing(request:HttpRequest):
-    from .view_forms import ImageForm,ImageFormset
+    products = Product.objects.all()
 
-    if request.method == 'POST':
-        pprint(request.FILES)
-        image_formset = ImageFormset(request.POST,request.FILES)
+    pagination = Paginator(products,15)
 
-        if image_formset.is_valid():
-            # print(image_formset.cleaned_data)
-            pass
+    current_page = request.GET.get('page',0)
+
+    if not isinstance(current_page,int):
+        current_page = 0
+
+    page_obj = pagination.get_page(current_page)
+
+    return render(request,'products/products.html',{
+        'products':page_obj,
+        'pagination':pagination
+    })
 
 
-        
-
-    image_formset = ImageFormset()
-
-    return render(request,'products/test.html',{'formset':image_formset})
+    
