@@ -1,16 +1,147 @@
-{%extends 'templates/base.html'%}
+{% extends 'base.html' %}
+{% load static %}
 
 
 {%block css%}
 
+<link rel="stylesheet" href="{%static 'products/css/products.css'%}">
+
 {%endblock%}
 
 {%block title%}
-<title>Products</title>
+Products
 {%endblock%}
 
-
 {%block content%}
+<!-- Main Content -->
 
 
-{%endblock}
+<div class="main-content">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+        <div class="filter-section">
+            <h3 class="filter-title">Categories</h3>
+            <div class="filter-options">
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-keyboards" value="keyboards">
+                    <label for="cat-keyboards">Keyboards</label>
+                    <span class="filter-count">24</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-mice" value="mice">
+                    <label for="cat-mice">Mice</label>
+                    <span class="filter-count">18</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-monitors" value="monitors">
+                    <label for="cat-monitors">Monitors</label>
+                    <span class="filter-count">12</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-switches" value="switches">
+                    <label for="cat-switches">Switches</label>
+                    <span class="filter-count">8</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3 class="filter-title">Price Range</h3>
+            <div class="price-range">
+                <div class="price-inputs">
+                    <input type="number" class="price-input" placeholder="MIN">
+                    <input type="number" class="price-input" placeholder="MAX">
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3 class="filter-title">Stock</h3>
+            <div class="filter-options">
+                <div class="filter-option">
+                    <input type="radio" name="stock" id="stock-all" value="all" checked>
+                    <label for="stock-all">All Products</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="stock" id="stock-in" value="in-stock">
+                    <label for="stock-in">In Stock</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="stock" id="stock-low" value="low-stock">
+                    <label for="stock-low">Low Stock</label>
+                </div>
+            </div>
+        </div>
+
+        <button class="clear-filters">Clear Filters</button>
+    </aside>
+
+    <!-- Products Area -->
+    <div class="products-area">
+        <div class="products-header">
+            <div class="products-count">
+                SHOWING <strong>6</strong> PRODUCTS
+            </div>
+            <div class="view-sort-controls">
+                <select class="sort-select">
+                    <option value="featured">FEATURED</option>
+                    <option value="name-asc">NAME (A-Z)</option>
+                    <option value="name-desc">NAME (Z-A)</option>
+                    <option value="price-asc">PRICE: LOW TO HIGH</option>
+                    <option value="price-desc">PRICE: HIGH TO LOW</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid">
+            <!-- Product Card 1 -->
+            {%for product in products%}
+            <a id="product-id-{{product.id}}" href="{%url 'products:product_view' pk=product.id%}" class="product-card">
+                <div class="product-image-wrapper">
+                    <img class="product-image" src="{%if product.base_image%} {{product.base_image.url}} {%endif%}" alt="">
+                </div>
+                <div class="product-info">
+                    <div class="product-category">KEYBOARDS</div>
+                    <h3 class="product-title">{{product.title}}</h3>
+                    <p class="product-description">{{product.description}}</p>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="price-current">{{product.base_price}}</span>
+                        </div>
+                        <span class="stock-status in-stock">{%if product.in_stock%} IN STOCK {%else%} OUT OF STOCK {%endif%}</span>
+                    </div>
+                    <!-- For User View -->
+                    <button class="add-to-cart-btn">ADD TO CART</button>
+                </div>
+            </a>
+            {%endfor%}
+            <!-- <a href="#" class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600"
+                        alt="Mechanical Gaming Keyboard" class="product-image">
+                    <div class="product-badge">POPULAR</div>
+                    <div class="product-actions">
+                            <a href="#" class="action-btn">✎</a>
+                            <a href="#" class="action-btn">×</a>
+                        </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">KEYBOARDS</div>
+                    <h3 class="product-title">Mechanical Gaming Keyboard</h3>
+                    <p class="product-description">Premium mechanical keyboard with RGB lighting and hot-swappable
+                        switches. Perfect for gaming and typing.</p>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="price-current">$200</span>
+                        </div>
+                        <span class="stock-status in-stock">IN STOCK</span>
+                    </div>
+                    <button class="add-to-cart-btn">ADD TO CART</button>
+                </div>
+            </a>             -->
+        </div>
+    </div>
+</div>
+
+{%endblock%}

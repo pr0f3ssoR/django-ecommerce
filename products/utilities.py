@@ -57,7 +57,7 @@ class ProductFetcher:
             'description':product.description
         }
 
-        variants = product.product_variant.all()
+        variants = product.product_variant.order_by('-id').all()
         serialized_product['variants'] = self.__serialize_variants(variants)
 
         return serialized_product
@@ -74,11 +74,11 @@ class ProductFetcher:
                 'stock': variant.stock
             }
 
-            variant_attribute_values = variant.variant_attribute_value.all()
+            variant_attribute_values = variant.variant_attribute_value.order_by('id').all()
 
             serialized_variant['attributes'] = self.__serialize_attributes(variant_attribute_values)
 
-            variant_images = variant.variant_image.all()
+            variant_images = variant.variant_image.order_by('id').all()
 
             serialized_variant['images'] = self.__serialize_images(variant_images)
 
@@ -202,6 +202,8 @@ class ProductUpsertService:
 
         vabc = VariantAttributesBulkCreate()
         vabc.bulk_create(new_attributes)
+
+        product.store_base_info()
 
         print(f'Number of queries in upesert class execute method: {len(connection.queries)}')
         

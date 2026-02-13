@@ -465,7 +465,10 @@ def delete_image(pk):
 
 # print(product)
 
-null_images()
+product_data = ProductFetcher().get_serialized_product(product=1)
+
+pprint(product_data)
+
 # delete_image(30)
 # pprint(connection.queries)
 # print(f'Number of queries: {len(connection.queries)}')

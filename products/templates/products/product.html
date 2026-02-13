@@ -1,0 +1,232 @@
+{%extends 'base.html'%}
+{%load static%}
+{%load json_conversion%}
+
+
+{%block css%}
+<link rel="stylesheet" href="{%static 'products/css/product.css'%}">
+
+{%endblock%}
+
+{%block title%}
+{{product.title}}
+{%endblock%}
+{%block content%}
+<section class="product-detail">
+        <div class="product-layout">
+            <!-- Image Gallery -->
+            <div class="image-gallery">
+                <div class="main-image-container" id="mainImageContainer">
+                    <img src="" alt="Product" class="main-image" id="mainImage">
+                </div>
+                
+                <!-- Scrollable Thumbnail Container -->
+                <div class="thumbnail-container">
+                    <div class="thumbnail-grid" id="thumbnailGrid">
+                        <!-- Thumbnail 1 -->
+                        <!-- <div class="thumbnail active" data-image="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800">
+                            <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200" alt="Thumbnail 1">
+                        </div> -->
+                        {%for variant in product.variants%}
+                            {%for image in variant.images%}
+                            <div class="thumbnail" data-image="{{image.url}}">
+                                <img src="{{image.url}}" alt="">
+                            </div>
+                            {%endfor%}
+                        {%endfor%}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                {%if request.user.is_superuser%}
+                <div class="admin">
+                    <a href="{%url 'products:update_product' pk=product.id%}">Update</a>
+                </div>
+                {%endif%}
+                <div class="product-category">KEYBOARDS</div>
+                <h1 class="product-title" id="productTitle">{{product.title}}</h1>
+                
+                <div class="product-rating">
+                    <div class="stars">★★★★★</div>
+                    <span class="rating-count">(128 reviews)</span>
+                </div>
+
+                <div class="product-price" id="productPrice"></div>
+
+                <p class="product-description" id="productDescription">
+                    <!-- Premium mechanical keyboard with RGB lighting and hot-swappable switches. Perfect for gaming and typing. Features include programmable keys, durable aluminum frame, and anti-ghosting technology for the ultimate gaming experience. -->
+                    {{product.description}}
+                </p>
+
+                <!-- Single Variant Selector -->
+                <div class="variant-section">
+                    <label class="variant-label" for="variantSelect">Select Variant</label>
+                    <select class="variant-dropdown" id="variantSelect" name="variant">
+                        {%for variant in product.variants%}
+                        <option value="" data-image="{{variant.images.0.url}}" data-price="{{variant.price}}" data-stock="{{variant.stock}}" > {{variant.attributes|parse_attributes}} </option>
+                        {%endfor%}
+                        <!-- <option value="1" data-price="200" data-stock="23" data-stock-status="in-stock">TKL • Wired • Red Switches</option>
+                        <option value="2" data-price="300" data-stock="61" data-stock-status="in-stock">TKL • Wireless • Red Switches</option>
+                        <option value="3" data-price="220" data-stock="8" data-stock-status="low-stock">TKL • Wired • Blue Switches</option>
+                        <option value="4" data-price="320" data-stock="0" data-stock-status="out-of-stock">TKL • Wireless • Blue Switches</option>
+                        <option value="5" data-price="210" data-stock="45" data-stock-status="in-stock">Full Size • Wired • Brown Switches</option> -->
+                    </select>
+                </div>
+
+                <!-- Stock Status -->
+                <div class="stock-info" id="stockInfo">
+                    <div class="stock-indicator in-stock" id="stockIndicator"></div>
+                    <span class="stock-text" id="stockStatus">IN STOCK</span>
+                    <span class="stock-count" id="stockCount">23 units available</span>
+                </div>
+
+                <!-- Quantity Selector -->
+                <div class="quantity-section">
+                    <label class="quantity-label">Quantity</label>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn" type="button" id="decreaseQty">−</button>
+                        <input type="number" class="quantity-input" id="quantityInput" value="1" min="1" max="23">
+                        <button class="quantity-btn" type="button" id="increaseQty">+</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="product-actions">
+                    <button class="btn-primary">ADD TO CART</button>
+                    <button class="btn-secondary">WISHLIST</button>
+                </div>
+
+                <!-- Product Features -->
+                <div class="product-features">
+                    <h3 class="features-title">Features</h3>
+                    <ul class="features-list">
+                        <li>
+                            <span class="feature-icon">✓</span>
+                            Hot-swappable switches
+                        </li>
+                        <li>
+                            <span class="feature-icon">✓</span>
+                            RGB per-key lighting
+                        </li>
+                        <li>
+                            <span class="feature-icon">✓</span>
+                            Aluminum frame construction
+                        </li>
+                        <li>
+                            <span class="feature-icon">✓</span>
+                            N-key rollover & anti-ghosting
+                        </li>
+                        <li>
+                            <span class="feature-icon">✓</span>
+                            Programmable macro keys
+                        </li>
+                        <li>
+                            <span class="feature-icon">✓</span>
+                            Detachable USB-C cable
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Admin Section (Hidden by default) -->
+                <!-- <div class="admin-section show"> -->
+                <div class="admin-section">
+                    <h3 class="admin-title">Admin Actions</h3>
+                    <div class="admin-actions">
+                        <a href="#" class="btn-edit">EDIT PRODUCT</a>
+                        <button class="btn-delete">DELETE PRODUCT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Additional Information Tabs -->
+    <section class="additional-info">
+        <div class="tabs">
+            <button class="tab active" data-tab="description">DESCRIPTION</button>
+            <button class="tab" data-tab="specifications">SPECIFICATIONS</button>
+            <button class="tab" data-tab="reviews">REVIEWS</button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Description Tab -->
+            <div class="tab-panel active" id="description">
+                <h3>Product Description</h3>
+                <p>
+                    Experience the ultimate typing and gaming performance with our premium mechanical keyboard. Designed for enthusiasts who demand the best, this keyboard features hot-swappable switches that allow you to customize your typing experience without soldering.
+                </p>
+                <p>
+                    The durable aluminum frame ensures longevity while providing a premium feel. Each key is individually backlit with RGB lighting, allowing you to create stunning light effects and customize your setup to match your style.
+                </p>
+                <p>
+                    Whether you're gaming, coding, or writing, this keyboard delivers exceptional performance with N-key rollover and anti-ghosting technology ensuring every keystroke is registered accurately, even during intense gaming sessions.
+                </p>
+            </div>
+
+            <!-- Specifications Tab -->
+            <div class="tab-panel" id="specifications">
+                <h3>Technical Specifications</h3>
+                <table class="specifications-table">
+                    <tr>
+                        <td>Switch Type</td>
+                        <td>Hot-swappable Mechanical</td>
+                    </tr>
+                    <tr>
+                        <td>Key Layout</td>
+                        <td>TKL (87 Keys)</td>
+                    </tr>
+                    <tr>
+                        <td>Connectivity</td>
+                        <td>USB-C Wired / Bluetooth 5.0</td>
+                    </tr>
+                    <tr>
+                        <td>Backlighting</td>
+                        <td>RGB Per-Key</td>
+                    </tr>
+                    <tr>
+                        <td>Frame Material</td>
+                        <td>Aluminum Alloy</td>
+                    </tr>
+                    <tr>
+                        <td>Cable</td>
+                        <td>Detachable USB-C</td>
+                    </tr>
+                    <tr>
+                        <td>Polling Rate</td>
+                        <td>1000Hz</td>
+                    </tr>
+                    <tr>
+                        <td>Dimensions</td>
+                        <td>360 x 140 x 40mm</td>
+                    </tr>
+                    <tr>
+                        <td>Weight</td>
+                        <td>950g</td>
+                    </tr>
+                    <tr>
+                        <td>Warranty</td>
+                        <td>2 Years</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-panel" id="reviews">
+                <h3>Customer Reviews</h3>
+                <p>
+                    Average Rating: ★★★★★ (4.8/5.0 based on 128 reviews)
+                </p>
+                <p>
+                    Reviews content will be displayed here. You can add individual review components with user names, ratings, dates, and review text.
+                </p>
+            </div>
+        </div>
+    </section>
+
+{%endblock%}
+
+{%block js%}
+<script src="{%static 'products/js/product.js'%}"></script>
+{%endblock%}

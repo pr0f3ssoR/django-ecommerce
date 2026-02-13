@@ -6,10 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{%static 'css/base.css'%}">
     {%block css%} {%endblock%}
-    {%block title%} {%endblock%}
+    <title>{% block title %}Default Title{% endblock %}</title>
+</head>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">TECHSTORE</div>
+            <div class="nav-search">
+                <span class="nav-search-icon">🔍</span>
+                <input type="text" id="navSearch" placeholder="Search products">
+            </div>
+            <div class="nav-actions">
+                <a href="#" class="nav-link">
+                    <span>❤</span> WISHLIST
+                </a>
+                <a href="#" class="nav-link cart-icon">
+                    <span>🛒</span> CART
+                    <span class="cart-badge">3</span>
+                </a>
+                <button class="admin-btn" id="adminToggle">ADMIN</button>
+            </div>
+        </div>
+    </nav>
+
     {%block content%}
+     
     {%endblock%}
+{%block js%}
+{%endblock%}
 </body>
 </html>

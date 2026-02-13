@@ -41,7 +41,6 @@ class VariantImageForm(forms.Form):
     image = forms.ImageField()
 
 class DeleteForm(forms.Form):
-    delete_product_id = forms.IntegerField(min_value=0,required=False)
     delete_image_ids = forms.JSONField(required=False)
     delete_variant_ids = forms.JSONField(required=False)
 

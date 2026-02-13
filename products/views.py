@@ -84,10 +84,20 @@ def create_product(request:HttpRequest):
     variant_formset = ProductVariantFormset(prefix='variant')
     return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'variant_image_form':variant_image_form})
 
+
+def delete_product(request:HttpRequest,pk):
+    try:
+        product = Product.objects.get(id=pk)
+        product.delete()
+    except Product.DoesNotExist:
+        pass
+
+    return redirect(reverse('products:list_products'))
     
 def list_products(request:HttpRequest):
+    request.user.is_superuser
 
-    products = Product.objects.all()
+    products = Product.objects.order_by('-id').all()
 
     pagination = Paginator(products,15)
 
@@ -104,4 +114,11 @@ def list_products(request:HttpRequest):
     })
 
 
-    
+
+def product_view(request:HttpRequest,pk):
+
+    product_data = ProductFetcher().get_serialized_product(product=pk)
+
+
+
+    return render(request,'products/product.html',{'product':product_data})

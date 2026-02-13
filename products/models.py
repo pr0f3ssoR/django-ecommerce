@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Min
+from django.db.models import Min,Subquery
 # Create your models here.
 
 
@@ -12,6 +12,35 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+    def store_base_info(self):
+        subquery = ProductVariant.objects.filter(product_id=self.pk).\
+        annotate(
+            min_price = Min('price')
+        ).values('min_price')[:1]
+
+        variant = ProductVariant.objects.filter(
+            product_id=self.pk,
+            price = Subquery(subquery)
+        ).prefetch_related('variant_image').first()
+
+        if variant:
+
+            self.base_price = variant.price
+
+            base_image = variant.variant_image.order_by('-id').first()
+
+            if base_image:
+                self.base_image = base_image.image_url
+
+            variants_in_stock_count = ProductVariant.objects.filter(product_id=self.pk,stock__gt=0).count()
+
+            self.in_stock = variants_in_stock_count > 0
+
+            self.save()
+
+
 
 
 class Attribute(models.Model):

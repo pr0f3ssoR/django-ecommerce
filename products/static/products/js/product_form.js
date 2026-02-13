@@ -189,7 +189,6 @@ function addVariant() {
                                         <div class="upload-hint">PNG, JPG, GIF up to 10MB</div>
                                     </div>
                                     <div class="images-grid">
-                                        <textarea name="variant-${newIndex}-images" cols="40" rows="10" id="id_variant-0-images"></textarea>
                                     </div>
                                 </div>
                                 <div class="attributes-section">
