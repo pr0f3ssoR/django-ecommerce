@@ -1,0 +1,104 @@
+/* Modern Pagination Container */
+.pagination {
+  margin: 30px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pagination a{
+    text-decoration: none;
+}
+
+.pagination .disabled{
+    cursor: initial;
+}
+
+/* Modern Base Button Style */
+.pagination-button {
+  background: transparent;
+  color: #4a5568;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Available button hover state */
+.pagination-button:not(:disabled):hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+  color: #2d3748;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Active button - current page */
+.pagination-button.active {
+  background: #000000;
+  color: white;
+  border-color: #000000;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.pagination-button.active:hover {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: white;
+  transform: scale(1.05) translateY(-1px);
+}
+
+/* Disabled button */
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f7fafc;
+  border-color: #e2e8f0;
+  color: #a0aec0;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Navigation buttons (Previous/Next) */
+.pagination-nav {
+  padding: 8px 16px;
+  background: white;
+  font-weight: 500;
+  gap: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.pagination-nav svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+/* Focus state for accessibility */
+.pagination-button:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Optional: Dots separator */
+.pagination-dots {
+  color: #4a5568;
+  padding: 0 4px;
+  font-size: 14px;
+}

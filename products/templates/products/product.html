@@ -65,7 +65,7 @@
                     <label class="variant-label" for="variantSelect">Select Variant</label>
                     <select class="variant-dropdown" id="variantSelect" name="variant">
                         {%for variant in product.variants%}
-                        <option value="" data-image="{{variant.images.0.url}}" data-price="{{variant.price}}" data-stock="{{variant.stock}}" > {{variant.attributes|parse_attributes}} </option>
+                        <option value="" data-image="{{variant.images.0.url}}" data-price="{{variant.price}}" data-stock="{{variant.stock_status}}" > {{variant.attributes|parse_attributes}} </option>
                         {%endfor%}
                         <!-- <option value="1" data-price="200" data-stock="23" data-stock-status="in-stock">TKL • Wired • Red Switches</option>
                         <option value="2" data-price="300" data-stock="61" data-stock-status="in-stock">TKL • Wireless • Red Switches</option>
@@ -79,7 +79,6 @@
                 <div class="stock-info" id="stockInfo">
                     <div class="stock-indicator in-stock" id="stockIndicator"></div>
                     <span class="stock-text" id="stockStatus">IN STOCK</span>
-                    <span class="stock-count" id="stockCount">23 units available</span>
                 </div>
 
                 <!-- Quantity Selector -->

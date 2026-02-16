@@ -25,7 +25,7 @@ class ProductFetcher:
                     queryset=ProductVariant.objects.prefetch_related(
                         Prefetch(
                             'variant_attribute_value',
-                            queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute').order_by('-id')
+                            queryset=VariantAttributeValue.objects.select_related('attribute_value__attribute').order_by('id')
                         ),
                         'variant_image'
                     ).order_by('-id')
@@ -57,7 +57,7 @@ class ProductFetcher:
             'description':product.description
         }
 
-        variants = product.product_variant.order_by('-id').all()
+        variants = product.product_variant.order_by('id').all()
         serialized_product['variants'] = self.__serialize_variants(variants)
 
         return serialized_product
@@ -71,7 +71,8 @@ class ProductFetcher:
             serialized_variant = {
                 'id': variant.id,
                 'price': variant.price,
-                'stock': variant.stock
+                'stock': variant.stock,
+                'stock_status':'In Stock' if variant.stock > 0 else 'Out Of Stock'
             }
 
             variant_attribute_values = variant.variant_attribute_value.order_by('id').all()

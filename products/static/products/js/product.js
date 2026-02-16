@@ -26,53 +26,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
     variantSelectElement.addEventListener('change',(event)=>{
 
-        console.log(event.target.selectedOptions[0])
         const selectedVariant = event.target.selectedOptions[0]
 
         const selectedVariantImageUrl = selectedVariant.getAttribute('data-image')
 
+        const selectedVariantPrice = selectedVariant.getAttribute('data-price')
+
+        const selectedVariantStock =  selectedVariant.getAttribute('data-stock')
+
+        const productPrice = document.getElementById('productPrice');
+
+        const stockStatus = document.getElementById('stockStatus');
+
         const mainImage = document.getElementById('mainImage');
+
+        productPrice.textContent = selectedVariantPrice
+
+        stockStatus.textContent = selectedVariantStock
 
         mainImage.src = selectedVariantImageUrl
     })
 
     // Variant change handler
-    const variantSelect = document.getElementById('variantSelect');
-    const productPrice = document.getElementById('productPrice');
-    const stockStatus = document.getElementById('stockStatus');
-    const stockCount = document.getElementById('stockCount');
-    const stockIndicator = document.getElementById('stockIndicator');
-    const quantityInput = document.getElementById('quantityInput');
+    // const variantSelect = document.getElementById('variantSelect');
+    // const productPrice = document.getElementById('productPrice');
+    // const stockStatus = document.getElementById('stockStatus');
+    // const stockCount = document.getElementById('stockCount');
+    // const stockIndicator = document.getElementById('stockIndicator');
+    // const quantityInput = document.getElementById('quantityInput');
 
-    variantSelect.addEventListener('change', function () {
-        const selectedOption = this.options[this.selectedIndex];
-        const price = selectedOption.getAttribute('data-price');
-        const stock = selectedOption.getAttribute('data-stock');
-        const stockStatusValue = selectedOption.getAttribute('data-stock-status');
+    // variantSelect.addEventListener('change', function () {
+    //     const selectedOption = this.options[this.selectedIndex];
+    //     const price = selectedOption.getAttribute('data-price');
+    //     const stock = selectedOption.getAttribute('data-stock');
+    //     const stockStatusValue = selectedOption.getAttribute('data-stock-status');
 
-        // Update price
-        productPrice.textContent =price;
+    //     // Update price
+    //     productPrice.textContent =price;
 
-        // Update stock count
-        stockCount.textContent = stock + ' units available';
+    //     // Update stock count
+    //     stockCount.textContent = stock + ' units available';
 
-        // Update stock status
-        stockIndicator.className = 'stock-indicator ' + stockStatusValue;
+    //     // Update stock status
+    //     stockIndicator.className = 'stock-indicator ' + stockStatusValue;
 
-        if (stockStatusValue === 'in-stock') {
-            stockStatus.textContent = 'IN STOCK';
-        } else if (stockStatusValue === 'low-stock') {
-            stockStatus.textContent = 'LOW STOCK';
-        } else if (stockStatusValue === 'out-of-stock') {
-            stockStatus.textContent = 'OUT OF STOCK';
-        }
+    //     if (stockStatusValue === 'in-stock') {
+    //         stockStatus.textContent = 'IN STOCK';
+    //     } else if (stockStatusValue === 'low-stock') {
+    //         stockStatus.textContent = 'LOW STOCK';
+    //     } else if (stockStatusValue === 'out-of-stock') {
+    //         stockStatus.textContent = 'OUT OF STOCK';
+    //     }
 
-        // Update quantity max
-        quantityInput.max = stock;
-        if (parseInt(quantityInput.value) > parseInt(stock)) {
-            quantityInput.value = stock;
-        }
-    });
+    //     // Update quantity max
+    //     quantityInput.max = stock;
+    //     if (parseInt(quantityInput.value) > parseInt(stock)) {
+    //         quantityInput.value = stock;
+    //     }
+    // });
 
     // Quantity controls
     const decreaseBtn = document.getElementById('decreaseQty');
@@ -118,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function initialInfo(thumbnails,mainImage){
+    const stockStatusELement = document.getElementById('stockStatus')
     const priceElement = document.getElementById('productPrice')
     const firstImage = thumbnails[0].querySelector('img')
 
@@ -126,6 +138,10 @@ function initialInfo(thumbnails,mainImage){
     const firstSelectOption = document.getElementById('variantSelect').selectedOptions[0]
 
     const firstPrice = firstSelectOption.getAttribute('data-price')
+
+    const firstStock = firstSelectOption.getAttribute('data-stock')
+
+    stockStatusELement.textContent = firstStock
 
     priceElement.textContent = firstPrice
 

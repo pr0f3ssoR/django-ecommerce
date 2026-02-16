@@ -29,7 +29,7 @@ class Product(models.Model):
 
             self.base_price = variant.price
 
-            base_image = variant.variant_image.order_by('-id').first()
+            base_image = variant.variant_image.order_by('id').first()
 
             if base_image:
                 self.base_image = base_image.image_url

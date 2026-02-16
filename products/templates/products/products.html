@@ -5,6 +5,7 @@
 {%block css%}
 
 <link rel="stylesheet" href="{%static 'products/css/products.css'%}">
+<link rel="stylesheet" href="{%static 'css/pagination.css'%}">
 
 {%endblock%}
 
@@ -80,9 +81,10 @@ Products
     <div class="products-area">
         <div class="products-header">
             <div class="products-count">
-                SHOWING <strong>6</strong> PRODUCTS
+                FOUND <strong>{{paginator.count}}</strong> ITEMS
             </div>
             <div class="view-sort-controls">
+                <a href="{%url 'products:create_product'%}">Add Product</a>
                 <select class="sort-select">
                     <option value="featured">FEATURED</option>
                     <option value="name-asc">NAME (A-Z)</option>
@@ -116,30 +118,32 @@ Products
                 </div>
             </a>
             {%endfor%}
-            <!-- <a href="#" class="product-card">
-                <div class="product-image-wrapper">
-                    <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600"
-                        alt="Mechanical Gaming Keyboard" class="product-image">
-                    <div class="product-badge">POPULAR</div>
-                    <div class="product-actions">
-                            <a href="#" class="action-btn">✎</a>
-                            <a href="#" class="action-btn">×</a>
-                        </div>
-                </div>
-                <div class="product-info">
-                    <div class="product-category">KEYBOARDS</div>
-                    <h3 class="product-title">Mechanical Gaming Keyboard</h3>
-                    <p class="product-description">Premium mechanical keyboard with RGB lighting and hot-swappable
-                        switches. Perfect for gaming and typing.</p>
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="price-current">$200</span>
-                        </div>
-                        <span class="stock-status in-stock">IN STOCK</span>
-                    </div>
-                    <button class="add-to-cart-btn">ADD TO CART</button>
-                </div>
-            </a>             -->
+        </div>
+       <div class="pagination">
+            {%if products.has_previous%}
+            <a class="pagination-button pagination-nav" href="{{request.path}}?page={{products.previous_page_number}}">
+                Previous
+            </a>
+            {%else%}
+            <span class="pagination-button disabled"> Previous </span>
+            {%endif%}
+
+            {%for page_num in products.paginator.page_range%}
+                {%if page_num == products.number%}
+                <span class="pagination-button active">{{page_num}}</span>
+                {%elif page_num > left_range and page_num < right_range or page_num == 1 or page_num == products.paginator.num_pages%}
+                <a class="pagination-button" href="{{request.path}}?page={{page_num}}">{{page_num}}</a>
+                {%elif page_num == left_range or page_num == right_range%}
+                <span class="pagination-dots">...</span>
+                {%endif%}
+            {%endfor%}
+            <!-- Next button -->
+            {%if products.has_next%}
+            <a class="pagination-button pagination-nav" href="{{request.path}}?page={{products.next_page_number}}">Next</a>
+            {%else%}
+            <span class="pagination-button disabled" >Next</span>
+            {%endif%}
+        </div>
         </div>
     </div>
 </div>

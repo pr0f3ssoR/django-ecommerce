@@ -39,9 +39,14 @@ def update_product(request:HttpRequest,pk):
 
             handle_deletion(delete_product_id,delete_variant_ids,delete_image_ids)
 
+            pprint(product_data)
+
+            return redirect(reverse('products:product_view',kwargs={'pk':product_data['id']}))
+
         
         else:
             pprint(variant_formset)
+
                 
 
     serialized_product = ProductFetcher().get_serialized_product(product=pk)
@@ -71,7 +76,7 @@ def create_product(request:HttpRequest):
                 pprint(f"form: {i},{form.cleaned_data['image_input_field']}")
             product_upsert_service = ProductUpsertService(product_data=product_form.cleaned_data,variants=variant_formset.cleaned_data)
             product = product_upsert_service.execute()
-            url = reverse('products:update_product',kwargs={'pk':product.id})
+            url = reverse('products:product_view',kwargs={'pk':product.id})
             return redirect(url)
         else:
             pprint(product_form.errors)
@@ -95,22 +100,29 @@ def delete_product(request:HttpRequest,pk):
     return redirect(reverse('products:list_products'))
     
 def list_products(request:HttpRequest):
-    request.user.is_superuser
 
     products = Product.objects.order_by('-id').all()
 
-    pagination = Paginator(products,15)
+    pagination = Paginator(products,1)
 
-    current_page = request.GET.get('page',0)
+    current_page = request.GET.get('page',1)
 
-    if not isinstance(current_page,int):
-        current_page = 0
+
+    try:
+        current_page =  int(current_page)
+    except ValueError:
+        current_page = 1
 
     page_obj = pagination.get_page(current_page)
 
+
+    current = page_obj.number
+
     return render(request,'products/products.html',{
         'products':page_obj,
-        'pagination':pagination
+        'paginator':pagination,
+        "left_range": current - 3,
+        "right_range": current + 3,
     })
 
 

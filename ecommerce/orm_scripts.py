@@ -465,7 +465,7 @@ def delete_image(pk):
 
 # print(product)
 
-product_data = ProductFetcher().get_serialized_product(product=1)
+product_data = ProductFetcher().get_serialized_product(product=16)
 
 pprint(product_data)
 
