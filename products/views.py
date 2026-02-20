@@ -134,3 +134,5 @@ def product_view(request:HttpRequest,pk):
 
 
     return render(request,'products/product.html',{'product':product_data})
+
+

@@ -1,0 +1,171 @@
+{%extends 'base.html'%}
+{%load static%}
+{%load json_conversion%}
+
+{%block title%}
+Cart
+{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" href="{%static 'users/css/cart.css' %}">
+{%endblock%}
+
+
+
+{%block content%}
+<div class="page-header">
+        <h1 class="page-title">YOUR CART</h1>
+        <p class="page-subtitle">3 items</p>
+    </div>
+
+    <!-- Cart Layout -->
+    <div class="cart-layout">
+
+        <!-- Cart Items -->
+        <div class="cart-items">
+            <div class="cart-table-header">
+                <div>Product</div>
+                <div>Quantity</div>
+                <div>Unit Price</div>
+                <div>Total</div>
+                <div></div>
+            </div>
+
+            <!-- Item 1 -->
+            <!-- <div class="cart-item">
+                <div class="item-info">
+                    <img
+                        src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200"
+                        alt="Mechanical Gaming Keyboard"
+                        class="item-image">
+                    <div class="item-details">
+                        <div class="item-name">Mechanical Gaming Keyboard</div>
+                        <div class="item-variant">TKL · Wired · Red Switches</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="quantity-control">
+                        <button class="qty-btn">−</button>
+                        <input class="qty-value" type="number" value="1" min="1">
+                        <button class="qty-btn">+</button>
+                    </div>
+                </div>
+                <div class="item-price">$200.00</div>
+                <div class="item-total">$200.00</div>
+                <button class="remove-btn" title="Remove">×</button>
+            </div> -->
+
+
+            {%for item in items%}
+            <!-- Item 2 -->
+            <div class="cart-item">
+                <div class="item-info">
+                    <input hidden name="id" type="text" value="{{item.item_id}}">
+                    <img
+                        src="{{item.item_image}}"
+                        alt="{{item.item_title}}"
+                        class="item-image">
+                    <div class="item-details">
+                        <div class="item-name">{{item.item_title}}</div>
+                        <div class="item-variant">{{item.item_attributes|parse_attributes}}</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="quantity-control">
+                        <input class="qty-value" value="{{item.item_qty}}" min="1">
+                    </div>
+                </div>
+                <div class="item-price">{{item.item_price}}</div>
+                <div class="item-total">{{item.item_total}}</div>
+                <button onclick="deleteFromCart(this)" class="remove-btn" title="Remove">×</button>
+            </div>
+
+            {%endfor%}
+
+            <!-- Item 3 -->
+            <!-- <div class="cart-item">
+                <div class="item-info">
+                    <img
+                        src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=200"
+                        alt="4K Gaming Monitor"
+                        class="item-image">
+                    <div class="item-details">
+                        <div class="item-name">4K Gaming Monitor</div>
+                        <div class="item-variant">27 inch · 4K</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="quantity-control">
+                        <button class="qty-btn">−</button>
+                        <input class="qty-value" type="number" value="1" min="1">
+                        <button class="qty-btn">+</button>
+                    </div>
+                </div>
+                <div class="item-price">$450.00</div>
+                <div class="item-total">$450.00</div>
+                <button class="remove-btn" title="Remove">×</button>
+            </div> -->
+
+            <!-- Empty cart state (hidden when items exist) -->
+            <!--
+            <div class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <div class="empty-cart-title">Your cart is empty</div>
+                <div class="empty-cart-text">Looks like you haven't added anything yet</div>
+                <a href="#" class="btn-shop">Start Shopping</a>
+            </div>
+            -->
+
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="cart-summary">
+            <div class="summary-title">Order Summary</div>
+
+            <div class="summary-row">
+                <span class="summary-label">Subtotal</span>
+                <span class="summary-value">{{calculated_values.sub_total}}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Discount</span>
+                <span class="summary-value">— {{calculated_values.discount}}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Shipping</span>
+                <span class="summary-value">{{calculated_values.shipping}}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Tax </span>
+                <span class="summary-value">{{calculated_values.tax}}</span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <!-- Coupon -->
+            <div class="coupon-section">
+                <label class="coupon-label">Coupon Code</label>
+                <div class="coupon-input-row">
+                    <input type="text" class="coupon-input" placeholder="Enter code">
+                    <button class="coupon-btn">Apply</button>
+                </div>
+            </div>
+
+            <div class="summary-total-row">
+                <span class="total-label">Grand Total</span>
+                <span class="total-value">{{calculated_values.grand_total}}</span>
+            </div>
+
+            <a href="#" class="checkout-btn">PROCEED TO CHECKOUT</a>
+            <a href="#" class="continue-shopping">CONTINUE SHOPPING</a>
+
+            <div class="shipping-note">
+                <p>Free shipping on orders over $500<br>Secure checkout · Easy returns</p>
+            </div>
+        </div>
+
+    </div>
+<script>const deleteFromCartURL = "{%url 'users:delete_from_cart' %}"
+        const CSRFTOKEN = "{{csrf_token}}"
+</script>
+<script src="{%static 'users/js/cart.js'%}" ></script>
+{%endblock%}

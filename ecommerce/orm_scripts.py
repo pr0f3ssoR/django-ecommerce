@@ -2,7 +2,7 @@ import os
 import sys
 import django
 from django.db import connection,transaction
-from django.db.models import Min,Subquery,OuterRef,F,Prefetch
+from django.db.models import Min,Subquery,OuterRef,F,Prefetch,Count
 from pprint import pprint
 from typing import Union
 
@@ -462,12 +462,31 @@ def delete_image(pk):
     except VariantImage.DoesNotExist:
         pass
 
+def test():
+    variant = ProductVariant.objects.prefetch_related(Prefetch('variant_image',queryset=VariantImage.objects.only('image_url'))).first()
+
+    print(variant.variant_image.first())
+
 
 # print(product)
 
-product_data = ProductFetcher().get_serialized_product(product=16)
+# product_data = ProductFetcher().get_serialized_product(product=16)
 
-pprint(product_data)
+# pprint(product_data)
+
+
+from users.models import CartItems
+
+
+
+def duplicates():
+    duplicate_items = CartItems.objects.values('cart','product_variant').annotate(count=Count('id')).filter(count__gt=1)
+
+    print(duplicate_items)
+
+# test()
+
+print(duplicates())
 
 # delete_image(30)
 # pprint(connection.queries)

@@ -55,7 +55,6 @@
      margin-bottom: 16px;
      aspect-ratio: 1;
      overflow: hidden;
-     flex-shrink: 0;
  }
 
  .main-image {

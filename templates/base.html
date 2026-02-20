@@ -22,9 +22,9 @@
                 <a href="#" class="nav-link">
                     <span>❤</span> WISHLIST
                 </a>
-                <a href="#" class="nav-link cart-icon">
+                <a href="{%url 'users:cart_view' %}" class="nav-link cart-icon">
                     <span>🛒</span> CART
-                    <span class="cart-badge">3</span>
+                    <span class="cart-badge">{{request.session.cart_item_count}}</span>
                 </a>
                 <button class="admin-btn" id="adminToggle">ADMIN</button>
             </div>
@@ -36,5 +36,6 @@
     {%endblock%}
 {%block js%}
 {%endblock%}
+<script src="{%static 'js/base.js' %}"></script>
 </body>
 </html>

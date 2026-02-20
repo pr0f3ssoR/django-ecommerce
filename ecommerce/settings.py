@@ -49,6 +49,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'users.middlewares.CartMiddleWare',
+    'users.middlewares.LoggingMiddleware'
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -100,6 +102,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'ecommerce.backend.UserNameOREmailBackend',
+]
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

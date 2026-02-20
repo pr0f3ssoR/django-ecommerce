@@ -92,6 +92,7 @@ Products
                     <option value="price-asc">PRICE: LOW TO HIGH</option>
                     <option value="price-desc">PRICE: HIGH TO LOW</option>
                 </select>
+                <button onclick="sendRequest(this)">Send JS request</button>
             </div>
         </div>
 
@@ -147,5 +148,20 @@ Products
         </div>
     </div>
 </div>
+
+<script> 
+const csrfToken = "{{csrf_token}}"
+const JSRequestURL = "{%url 'users:add_to_cart' %}" 
+</script>
+
+<script>function sendRequest(btn){
+    fetch(JSRequestURL,{
+        method:'POST',
+        headers: {
+            'X-CSRFToken':"{{csrf_token}}"
+        },
+        body:JSON.stringify({id:5})
+    })
+}</script>
 
 {%endblock%}

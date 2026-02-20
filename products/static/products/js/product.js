@@ -147,3 +147,26 @@ function initialInfo(thumbnails,mainImage){
 
 
 }
+
+
+function addItemToCart(btn){
+
+    const itemId = document.getElementById('variantSelect').selectedOptions[0].getAttribute('data-id')
+    const qty = document.getElementById('quantityInput').value
+
+    url = addToCartUrl
+
+    fetch(url,{
+        method:'POST',
+        headers:{
+            'X-CSRFToken':CSRFTOKEN
+        },
+        body:JSON.stringify({
+            'id':itemId,
+            'qty':qty
+        })
+    })
+    .then(res=>res.json())
+    .then(data=>updateCartCount(data.cart_item_count))
+
+}
