@@ -97,6 +97,7 @@ class VariantImage(models.Model):
     variant = models.ForeignKey('ProductVariant',on_delete=models.CASCADE,related_name='variant_image')
     image_url = models.ImageField(upload_to='images/products',null=True,blank=True)
     is_display_image = models.BooleanField(default=False)
+    stripe_url = models.URLField(max_length=500,null=True,blank=True)
 
 
     # def __str__(self):

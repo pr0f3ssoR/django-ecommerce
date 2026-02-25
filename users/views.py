@@ -1,12 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpRequest,JsonResponse
 from .forms import RegisterForm
 from pprint import pprint
-from .utilities import register_user,get_discount_value,get_shipping_value,get_tax_value,save_item_to_db,delete_item_from_db
+from .utilities import register_user,get_discount_value,get_shipping_value,get_tax_value,save_item_to_db,delete_item_from_db,check_out_items_details
 from .models import CartItems
 from products.models import ProductVariant,VariantImage,VariantAttributeValue
 from django.db.models import Prefetch
 import json
+import stripe
+from django.conf import settings
 
 
 
@@ -31,9 +33,13 @@ def register(request:HttpRequest):
 
 
 def cart_view(request:HttpRequest):
-    cart_map = request.session.get('cart',dict())
-
-    variant_ids = [variant_id for variant_id in cart_map]
+    
+    if request.user.is_anonymous:
+        cart_map = request.session.get('cart',dict())
+        variant_ids = [variant_id for variant_id in cart_map]
+    elif request.user.is_authenticated:
+        cart_items = CartItems.objects.select_related('cart__user').filter(cart__user=request.user).values('product_variant_id')
+        variant_ids = [item['product_variant_id'] for item in cart_items]
 
     variants_bulk = ProductVariant.objects.select_related('product').prefetch_related(
         Prefetch('variant_image',queryset=VariantImage.objects.only('image_url')),
@@ -45,7 +51,10 @@ def cart_view(request:HttpRequest):
     sub_total = 0
 
     for variant_id,variant in variants_bulk.items():
-        item_qty = int(cart_map.get(str(variant.id),1))
+        if request.user.is_anonymous:
+            item_qty = int(cart_map.get(str(variant.id),1))
+        else:
+            item_qty = CartItems.objects.get(cart__user=request.user,product_variant_id=variant_id).qty
 
         variant_data = {
             'item_id':variant_id,
@@ -75,7 +84,6 @@ def cart_view(request:HttpRequest):
         'grand_total':grand_total
     }
 
-
     return render(request,'users/cart.html',{'items':items,'calculated_values':calculated_values})
 
 
@@ -97,12 +105,12 @@ def add_to_cart(request:HttpRequest):
                 request.session['cart_item_count'] = request.session['cart_item_count'] + 1
 
             new_qty = request.session['cart'].get(str(product_variant_id),0) + qty
-            request.session['cart'][str(product_variant_id)] = new_qty
-            request.session.modified = True
+            if request.user.is_anonymous:
+                request.session['cart'][str(product_variant_id)] = new_qty
+                request.session.modified = True
 
-            if request.user.is_authenticated:
-                items_count = len(request.session.get('cart'))
-                save_item_to_db(request.user,item_id,new_qty,items_count)
+            elif request.user.is_authenticated:
+                save_item_to_db(request.user,item_id,new_qty)
 
             return JsonResponse({'cart_item_count':request.session['cart_item_count']})
 
@@ -116,16 +124,71 @@ def delete_from_cart(request:HttpRequest):
 
 
         if item_id:
-            item = request.session['cart'].pop(item_id,None)
+            item = request.session['cart'].pop(item_id,None) if request.user.is_anonymous else None
             if item:
                 request.session['cart_item_count']-=1
 
             request.session.modified = True
 
             if request.user.is_authenticated:
-                items_count = len(request.session.get('cart'))
-                delete_item_from_db(request.user,item_id,items_count)
+                delete_item_from_db(request.user,item_id)
 
             return JsonResponse({'cart_item_count':request.session['cart_item_count']})
         
         return JsonResponse({'error':'invalid'})
+    
+
+def check_out_view(request:HttpRequest):
+    if request.method == 'POST':
+        cart_items = check_out_items_details(request)
+        for item in cart_items:
+            print(f'Item qty: {item['item_qty']}, Item price: {item['price']}, Unit Amount: {int(item['item_qty']) * int(item['price'])}')
+        session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    'price_data':{
+                        'currency':'pkr',
+                        'product_data':{
+                            'name':item['title'],
+                            'description':item['attributes']
+                        },
+                        'unit_amount':int(item['price']) * 100,
+                    },
+                    'quantity':int(item['item_qty']),
+
+                }
+            for item in cart_items],mode='payment',success_url='http://127.0.0.1:8000//success',
+            shipping_options=[
+                            {
+                                'shipping_rate_data': {
+                                    'display_name': 'Standard Shipping',
+                                    'type': 'fixed_amount',
+                                    'fixed_amount': {
+                                        'amount': get_shipping_value() * 100,  
+                                        'currency': 'pkr',
+                                    },
+                                },
+                            }]
+                                                )
+        
+        # session = stripe.checkout.Session.create\
+        #                                         (
+        #                                             line_items
+        #                                         =[{
+        #                                             'price_data': {
+        #                                                 'currency': 'usd',
+        #                                                 'product_data': {
+        #                                                 'name': 'T-shirt',
+        #                                                 },
+        #                                                 'unit_amount': 2000,
+        #                                             },
+        #                                             'quantity': 1,
+        #                                             }],
+        #                                             mode
+        #                                         ='payment',
+        #                                             success_url
+        #                                         ='http://127.0.0.1:8000//success',
+        #                                         )
+        
+        return redirect(session.url)
+    

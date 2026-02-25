@@ -19,3 +19,10 @@ function deleteFromCart(btn){
     cartItem.remove()
 
 }
+
+
+function checkOut(btn){
+    const form = document.getElementById('checkOutForm')
+
+    form.submit()
+}

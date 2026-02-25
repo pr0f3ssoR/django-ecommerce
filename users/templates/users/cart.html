@@ -56,6 +56,10 @@ Cart
             </div> -->
 
 
+
+        <form id="checkOutForm" action="{%url 'users:check_out_view' %}" method="post">
+            {%csrf_token%}
+
             {%for item in items%}
             <!-- Item 2 -->
             <div class="cart-item">
@@ -81,6 +85,7 @@ Cart
             </div>
 
             {%endfor%}
+        </form>
 
             <!-- Item 3 -->
             <!-- <div class="cart-item">
@@ -155,7 +160,7 @@ Cart
                 <span class="total-value">{{calculated_values.grand_total}}</span>
             </div>
 
-            <a href="#" class="checkout-btn">PROCEED TO CHECKOUT</a>
+            <button onclick="checkOut(this)" class="checkout-btn">PROCEED TO CHECKOUT</button>
             <a href="#" class="continue-shopping">CONTINUE SHOPPING</a>
 
             <div class="shipping-note">

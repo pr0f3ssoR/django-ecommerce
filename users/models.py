@@ -22,6 +22,11 @@ class Cart(models.Model):
         if not self.user and not self.session:
             raise(ValidationError('Profile and Session cannot be null!'))
         return super().clean()
+    
+    def save(self, *args,**kwargs):
+        product_count = CartItems.objects.filter(cart_id=self.pk).count()
+        self.products_count = product_count
+        return super().save(*args,**kwargs)
 
 class CartItems(models.Model):
     cart = models.ForeignKey('Cart',on_delete=models.CASCADE,related_name='cart_items')
@@ -31,3 +36,22 @@ class CartItems(models.Model):
 
     class Meta:
         unique_together = ('cart', 'product_variant')
+
+
+# class Order(models.Model):
+#     class OrderChoices(models.TextChoices):
+#         pending = 'PAYMENT PENDING'
+#         failed = 'PAYMENT FAILED'
+#         success = 'PAYMENT SUCCESS'
+#         packed = 'ORDER PACKED'
+#         dispatched = 'ORDER DISPATCHED'
+
+#     invoice = models.UUIDField(primary_key=True)
+#     user = models.ForeignKey('CustomUser',on_delete=models.CASCADE,null=True,blank=True)
+#     status = models.CharField(max_length=100,choices=OrderChoices.choices,default=OrderChoices.pending)
+#     tracking_id = models.CharField(max_length=500)
+
+
+# class OrderItems(models.Model):
+#     order = models.OneToOneField(Order,on_delete=models.CASCADE)
+#     item = models.ForeignKey(ProductVariant,on_delete=models.SET_NULL,null=True)

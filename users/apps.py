@@ -9,4 +9,7 @@ class UsersConfig(AppConfig):
 
         from . import signals
 
+        from . import stripe_api
+        
+
         return super().ready()

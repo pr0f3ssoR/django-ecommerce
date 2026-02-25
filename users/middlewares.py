@@ -18,6 +18,11 @@ class CartMiddleWare:
             request.session['cart'] = dict()
             request.session['cart_item_count'] = 0
 
+        elif request.user.is_authenticated:
+            cart_item_count = CartItems.objects.select_related('cart__user').filter(cart__user=request.user).count()
+            request.session['cart'] = dict()
+            request.session['cart_item_count'] = cart_item_count
+
         response = self.get_response(request)
 
         return response
@@ -31,25 +36,6 @@ class LoggingMiddleware:
 
     def __call__(self,request:HttpRequest):
 
-        # pprint(request.session.items())
-        # session_key = request.COOKIES.get('sessionid',None)
-        # if session_key:
-        #     print(session_key)
-        #     session = Session.objects.values().get(session_key=session_key)
-
-        #     pprint(session)
-
-
-
-        # pprint(request.META.get('HTTP_COOKIE'))
-
-        # print(request.session.session_key)
-
-
-        # pprint(request.session.session_key)
-
-        # print(request.session.get('cart'))
-        # print(request.session.get('cart_item_count'))
 
         response = self.get_response(request)
 

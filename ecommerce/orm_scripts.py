@@ -5,6 +5,7 @@ from django.db import connection,transaction
 from django.db.models import Min,Subquery,OuterRef,F,Prefetch,Count
 from pprint import pprint
 from typing import Union
+from dotenv import load_dotenv
 
 # 🔹 Add project root (where manage.py lives)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -484,10 +485,10 @@ def duplicates():
 
     print(duplicate_items)
 
-# test()
 
-print(duplicates())
+def image_by_path():
+    image = VariantImage.objects.filter(image_url='images/products/headphones.webp')
 
-# delete_image(30)
-# pprint(connection.queries)
-# print(f'Number of queries: {len(connection.queries)}')
+    print(image)
+
+image_by_path()
