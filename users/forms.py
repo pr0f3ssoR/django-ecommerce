@@ -20,3 +20,8 @@ class RegisterForm(forms.Form):
             self.add_error('confirm_password','Password and Confirm Password must match!')
 
         return cleaned_data
+    
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=500,widget=forms.TextInput(attrs={'placeholder':'Enter username or email','class':'form-input'}))
+    password = forms.CharField(max_length=100,widget=forms.PasswordInput(attrs={'placeholder':'Enter password','class':'form-input'}))

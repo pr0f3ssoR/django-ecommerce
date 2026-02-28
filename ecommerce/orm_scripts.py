@@ -2,10 +2,12 @@ import os
 import sys
 import django
 from django.db import connection,transaction
-from django.db.models import Min,Subquery,OuterRef,F,Prefetch,Count
+from django.db.models import Min,Subquery,OuterRef,F,Prefetch,Count,Value,Func
+from django.db.models.functions import Concat
 from pprint import pprint
 from typing import Union
 from dotenv import load_dotenv
+from django.contrib.auth import get_user_model
 
 # 🔹 Add project root (where manage.py lives)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -475,20 +477,66 @@ def test():
 
 # pprint(product_data)
 
-
-from users.models import CartItems
-
+from users.models import Order,OrderItems
 
 
-def duplicates():
-    duplicate_items = CartItems.objects.values('cart','product_variant').annotate(count=Count('id')).filter(count__gt=1)
+class GroupConcat(Func):
+    function = 'GROUP_CONCAT'
+    template = "%(function)s(%(expressions)s, ' • ')"
 
-    print(duplicate_items)
+def generate_order(items,user):
+    order = Order(user=user)
+
+    order_items = [OrderItems(order=order,item_id=item['variant_id'],qty=item['item_qty']) for item in items]
+
+    order.save()
+
+    OrderItems.objects.bulk_create(order_items)
 
 
-def image_by_path():
-    image = VariantImage.objects.filter(image_url='images/products/headphones.webp')
+    order_item_ids = [order_item.id for order_item in order_items]
 
-    print(image)
+    vav_subquery = VariantAttributeValue.objects.select_related('attribute_value__attribute')\
+    .filter(variant_id = OuterRef('item_id'))\
+    .values('variant_id')\
+    .annotate(attributes=GroupConcat(
+        Concat(
+            F('attribute_value__attribute__name'),
+            Value(':'),
+            F('attribute_value__value')
+        )
+    ))\
+    .values('attributes')[:1]
 
-image_by_path()
+    image_subquery = VariantImage.objects.filter(variant_id=OuterRef('item_id'))\
+    .values('image_url')[:1]
+
+    order_items = OrderItems.objects.filter(id__in=order_item_ids).select_related('item__product')\
+    .annotate(attributes=Subquery(vav_subquery),image=Subquery(image_subquery))\
+    .values('attributes',
+            'image',
+            'qty',
+            title=F('item__product__title'),
+            price = F('item__price'),
+            )
+    
+    return order_items
+    
+
+def random_order_details():
+    return [
+        {
+            'variant_id':ProductVariant.objects.first().pk,
+            'item_qty': 5
+        }
+    ]
+
+def first_user():
+    User = get_user_model()
+
+    return User.objects.first()
+
+order_details = random_order_details()
+user = first_user()
+
+pprint(generate_order(user=user,items=order_details))

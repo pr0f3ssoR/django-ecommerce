@@ -18,13 +18,13 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import checkout_success
+from .views import order_success
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/',include('users.urls')),
     path('products/',include('products.urls')),
-    path('success/',view=checkout_success,name='checkout_success')
+    path('success/',view=order_success,name='order_success')
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
-from django.http import HttpRequest,JsonResponse
-from .forms import RegisterForm
+from django.http import HttpRequest,JsonResponse,HttpResponse
+from .forms import RegisterForm,LoginForm
 from pprint import pprint
 from .utilities import register_user,get_discount_value,get_shipping_value,get_tax_value,save_item_to_db,delete_item_from_db,check_out_items_details
 from .models import CartItems
@@ -9,13 +9,14 @@ from django.db.models import Prefetch
 import json
 import stripe
 from django.conf import settings
+from django.contrib.auth import authenticate,login,logout
 
 
 
 # Create your views here.
 
 
-def register(request:HttpRequest):
+def register_view(request:HttpRequest):
     errors = dict()
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -23,6 +24,9 @@ def register(request:HttpRequest):
             user,model_errors = register_user(form.cleaned_data)
             if not user:
                 errors.update(model_errors)
+            else:
+                login(request,user)
+                return redirect('products:list_products')
         else:
             errors.update(form.errors)
             pprint(form.errors)
@@ -30,6 +34,27 @@ def register(request:HttpRequest):
     form = RegisterForm()
 
     return render(request,'users/register.html',{'form':form,'errors':errors})
+
+
+def login_view(request:HttpRequest):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            credentials = {
+                'username':form.cleaned_data['username'],
+                'password':form.cleaned_data['password']
+            }
+            user = authenticate(request,**credentials)
+            if user:
+                login(request,user)
+                return redirect('products:list_products')
+    form = LoginForm()
+    return render(request,'users/login.html',{'form':form})
+
+def logout_view(request:HttpRequest):
+    logout(request)
+    return redirect('products:list_products')
 
 
 def cart_view(request:HttpRequest):
@@ -157,7 +182,9 @@ def check_out_view(request:HttpRequest):
                     'quantity':int(item['item_qty']),
 
                 }
-            for item in cart_items],mode='payment',success_url='http://127.0.0.1:8000//success',
+            for item in cart_items],
+            phone_number_collection={'enabled':True},
+            mode='payment',success_url='http://127.0.0.1:8000/success/session_id={CHECKOUT_SESSION_ID}',
             shipping_options=[
                             {
                                 'shipping_rate_data': {
@@ -168,27 +195,14 @@ def check_out_view(request:HttpRequest):
                                         'currency': 'pkr',
                                     },
                                 },
-                            }]
+                            }],
+                            metadata=[
+                                {
+                                    'variant_id':item['item_id'],
+                                    'qty':item['item_qty']
+                                }
+                                for item in cart_items
+                            ]
                                                 )
-        
-        # session = stripe.checkout.Session.create\
-        #                                         (
-        #                                             line_items
-        #                                         =[{
-        #                                             'price_data': {
-        #                                                 'currency': 'usd',
-        #                                                 'product_data': {
-        #                                                 'name': 'T-shirt',
-        #                                                 },
-        #                                                 'unit_amount': 2000,
-        #                                             },
-        #                                             'quantity': 1,
-        #                                             }],
-        #                                             mode
-        #                                         ='payment',
-        #                                             success_url
-        #                                         ='http://127.0.0.1:8000//success',
-        #                                         )
-        
         return redirect(session.url)
     

@@ -26,7 +26,25 @@
                     <span>🛒</span> CART
                     <span class="cart-badge">{{request.session.cart_item_count}}</span>
                 </a>
-                <button class="admin-btn" id="adminToggle">ADMIN</button>
+                <!-- {%if request.user.is_superuser%}
+                <a class="admin-btn" href="{%url 'admin:index'%}"> ADMIN</a>
+                {%elif request.user.is_authenticated%}
+                <button class="admin-btn" id="adminToggle">{{request.user.username}}</button>
+                {%else%}
+                <a class="admin-btn" href="{%url 'users:login'%}"></a>
+                {%endif%} -->
+
+                {%if request.user.is_authenticated%}
+                    {%if request.user.is_superuser%}
+                        <a class="admin-btn" href="{%url 'admin:index'%}"> ADMIN</a>
+                    {%else%}
+                        <button class="admin-btn" id="adminToggle">{{request.user.username}}</button>
+                    {%endif%}
+                        <a class="admin-btn" href="{%url 'users:logout'%}">LOGOUT</a>
+                {%else%}
+                    <a class="admin-btn" href="{%url 'users:register'%}">REGISTER</a>
+                    <a class="admin-btn" href="{%url 'users:login' %}">LOGIN</a>
+                {%endif%}
             </div>
         </div>
     </nav>

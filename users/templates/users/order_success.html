@@ -1,0 +1,165 @@
+{%extends 'base.html'%}
+{%load static%}
+
+{%block css%}
+<link rel="stylesheet" href="{%static 'users/css/order_success.css'%}">
+{%endblock%}
+
+
+{%block title%}
+Order Success | Thank you for your order
+{%endblock%}
+
+
+{%block content%}
+<div class="success-container">
+    <!-- Success Header -->
+    <div class="success-header">
+        <div class="success-icon">✓</div>
+        <h1 class="success-title">ORDER CONFIRMED</h1>
+        <p class="success-message">
+            Thank you for your purchase! Your order has been successfully placed and is being processed.
+            We've sent a confirmation email to your inbox with order details.
+        </p>
+    </div>
+
+    <!-- Order Info -->
+    <div class="order-info">
+        <div class="info-item">
+            <div class="info-label">Order Number</div>
+            <div class="info-value">#ORD-2024-1234</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Order Date</div>
+            <div class="info-value">Feb 26, 2026</div>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="order-items">
+        <h2 class="section-title">Order Items</h2>
+
+        <!-- Item 1 -->
+        <div class="order-item">
+            <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200"
+                alt="Mechanical Gaming Keyboard" class="item-image">
+            <div class="item-details">
+                <div class="item-name">Mechanical Gaming Keyboard</div>
+                <div class="item-variant">TKL • Wireless • Red Switches</div>
+                <div class="item-quantity">Quantity: 1</div>
+            </div>
+            <div class="item-price-section">
+                <div class="item-unit-price">$300.00 each</div>
+                <div class="item-total-price">$300.00</div>
+            </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="order-item">
+            <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200" alt="Pro Gaming Mouse"
+                class="item-image">
+            <div class="item-details">
+                <div class="item-name">Pro Gaming Mouse</div>
+                <div class="item-variant">Black • 16000 DPI</div>
+                <div class="item-quantity">Quantity: 2</div>
+            </div>
+            <div class="item-price-section">
+                <div class="item-unit-price">$80.00 each</div>
+                <div class="item-total-price">$160.00</div>
+            </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="order-item">
+            <div class="item-image-placeholder">□</div>
+            <div class="item-details">
+                <div class="item-name">RGB Mouse Pad</div>
+                <div class="item-variant">XXL • RGB</div>
+                <div class="item-quantity">Quantity: 1</div>
+            </div>
+            <div class="item-price-section">
+                <div class="item-unit-price">$35.00 each</div>
+                <div class="item-total-price">$35.00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+        <div class="summary-row subtotal">
+            <span>Subtotal</span>
+            <span>$495.00</span>
+        </div>
+        <div class="summary-row shipping">
+            <span>Shipping</span>
+            <span>$15.00</span>
+        </div>
+        <div class="summary-row total">
+            <span>TOTAL</span>
+            <span>$510.00</span>
+        </div>
+    </div>
+
+    <!-- Shipping & Billing Info -->
+    <div class="info-grid">
+        <!-- Shipping Address -->
+        <div class="info-block">
+            <h3 class="info-block-title">Shipping Address</h3>
+            <p>
+                John Doe<br>
+                123 Main Street, Apt 4B<br>
+                New York, NY 10001<br>
+                United States<br>
+                Phone: +1 (555) 123-4567
+            </p>
+        </div>
+
+        <!-- Billing Address -->
+        <div class="info-block">
+            <h3 class="info-block-title">Billing Address</h3>
+            <p>
+                John Doe<br>
+                123 Main Street, Apt 4B<br>
+                New York, NY 10001<br>
+                United States<br>
+                Phone: +1 (555) 123-4567
+            </p>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="info-block">
+            <h3 class="info-block-title">Payment Method</h3>
+            <p>
+                Credit Card<br>
+                •••• •••• •••• 4242<br>
+                Expires: 12/28
+            </p>
+        </div>
+
+        <!-- Shipping Method -->
+        <div class="info-block">
+            <h3 class="info-block-title">Shipping Method</h3>
+            <p>
+                Standard Shipping<br>
+                Estimated: 5-7 business days<br>
+                Tracking: Available after shipment
+            </p>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+        <a href="#" class="btn-primary">TRACK ORDER</a>
+        <a href="#" class="btn-secondary">CONTINUE SHOPPING</a>
+    </div>
+
+    <!-- Support Section -->
+    <div class="support-section">
+        <h3 class="support-title">NEED HELP?</h3>
+        <p class="support-text">
+            If you have any questions about your order, feel free to contact us.
+        </p>
+        <a href="mailto:support@techstore.com" class="support-email">support@techstore.com</a>
+    </div>
+</div>
+{%endblock%}
