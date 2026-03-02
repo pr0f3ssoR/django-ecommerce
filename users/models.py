@@ -92,7 +92,7 @@ class Order(models.Model):
 
 
 class OrderItems(models.Model):
-    order = models.OneToOneField(Order,on_delete=models.CASCADE)
+    order = models.ForeignKey(Order,on_delete=models.CASCADE)
     item = models.ForeignKey(ProductVariant,on_delete=models.SET_NULL,null=True)
     qty = models.PositiveIntegerField(default=1)
 

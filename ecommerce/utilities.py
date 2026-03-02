@@ -4,15 +4,15 @@ from django.db.models import Func,OuterRef,F,Value,Subquery
 from django.db.models.functions import Concat
 
 
-
 class GroupConcat(Func):
     function = 'GROUP_CONCAT'
     template = "%(function)s(%(expressions)s, ' • ')"
 
 def generate_order(items,user):
+
     order = Order(user=user)
 
-    order_items = [OrderItems(item_id=item['variant_id'],qty=item['item_qty']) for item in items]
+    order_items = [OrderItems(order=order,item_id=item['variant_id'],qty=item['item_qty']) for item in items]
 
     order.save()
 
@@ -36,13 +36,15 @@ def generate_order(items,user):
     image_subquery = VariantImage.objects.filter(variant_id=OuterRef('item_id'))\
     .values('image_url')[:1]
 
-    OrderItems.objects.filter(id__in=order_item_ids).select_related('item__product')\
+    order_items = OrderItems.objects.filter(id__in=order_item_ids).select_related('item__product')\
     .annotate(attributes=Subquery(vav_subquery),image=Subquery(image_subquery))\
     .values('attributes',
-            'image',
             'qty',
-            title=F('item__product_title'),
+            'image',
+            title=F('item__product__title'),
             price = F('item__price'),
             )
-
+    
+    return order,order_items
+    
 

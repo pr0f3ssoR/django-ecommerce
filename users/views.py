@@ -168,6 +168,7 @@ def check_out_view(request:HttpRequest):
         cart_items = check_out_items_details(request)
         for item in cart_items:
             print(f'Item qty: {item['item_qty']}, Item price: {item['price']}, Unit Amount: {int(item['item_qty']) * int(item['price'])}')
+            
         session = stripe.checkout.Session.create(
             line_items=[
                 {
@@ -175,16 +176,18 @@ def check_out_view(request:HttpRequest):
                         'currency':'pkr',
                         'product_data':{
                             'name':item['title'],
-                            'description':item['attributes']
+                            'description':item['attributes'],
+                            'metadata':{'variant_id':item['variant_id']}
                         },
                         'unit_amount':int(item['price']) * 100,
                     },
                     'quantity':int(item['item_qty']),
+                    'metadata': {'variant_id':item['variant_id']}
 
                 }
             for item in cart_items],
-            phone_number_collection={'enabled':True},
-            mode='payment',success_url='http://127.0.0.1:8000/success/session_id={CHECKOUT_SESSION_ID}',
+            # phone_number_collection={'enabled':True},
+            mode='payment',success_url='http://127.0.0.1:8000/success/?session_id={CHECKOUT_SESSION_ID}',
             shipping_options=[
                             {
                                 'shipping_rate_data': {
@@ -196,13 +199,19 @@ def check_out_view(request:HttpRequest):
                                     },
                                 },
                             }],
-                            metadata=[
-                                {
-                                    'variant_id':item['item_id'],
-                                    'qty':item['item_qty']
-                                }
-                                for item in cart_items
-                            ]
+                            shipping_address_collection={
+                        'allowed_countries': ['US', 'CA', 'PK'],  # Add the countries you support
+                    },
+                            
+                            # metadata={
+                            #     'products':[
+                            #         {
+                            #         'variant_id':str(item['variant_id']),
+                            #         'qty':str(item['item_qty'])
+                            #     }
+                            #     for item in cart_items
+                            #     ]
+                            # }
                                                 )
         return redirect(session.url)
     

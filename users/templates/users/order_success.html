@@ -1,5 +1,6 @@
 {%extends 'base.html'%}
 {%load static%}
+{%load custom_template%}
 
 {%block css%}
 <link rel="stylesheet" href="{%static 'users/css/order_success.css'%}">
@@ -27,11 +28,13 @@ Order Success | Thank you for your order
     <div class="order-info">
         <div class="info-item">
             <div class="info-label">Order Number</div>
-            <div class="info-value">#ORD-2024-1234</div>
+            <!-- <div class="info-value">#ORD-2024-1234</div> -->
+             <div class="info-value">{{order.invoice}}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Order Date</div>
-            <div class="info-value">Feb 26, 2026</div>
+            <!-- <div class="info-value">Feb 26, 2026</div> -->
+            <div class="info-value">{{order.created}}</div>
         </div>
     </div>
 
@@ -39,8 +42,24 @@ Order Success | Thank you for your order
     <div class="order-items">
         <h2 class="section-title">Order Items</h2>
 
-        <!-- Item 1 -->
+        {%for order_item in order_items%}
         <div class="order-item">
+            <img src="{{order_item.image|image_url}}"
+                alt="Mechanical Gaming Keyboard" class="item-image">
+            <div class="item-details">
+                <div class="item-name">{{order_item.title}}</div>
+                <div class="item-variant">{{order_item.attributes}}</div>
+                <div class="item-quantity">{{order.qty}}</div>
+            </div>
+            <div class="item-price-section">
+                <div class="item-unit-price">{{order_item.price}} PKR each</div>
+                <div class="item-total-price">{%sub_total order_item.price order_item.qty%} PKR</div>
+            </div>
+        </div>
+        {%endfor%}
+
+        <!-- Item 1 -->
+        <!-- <div class="order-item">
             <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200"
                 alt="Mechanical Gaming Keyboard" class="item-image">
             <div class="item-details">
@@ -54,7 +73,7 @@ Order Success | Thank you for your order
             </div>
         </div>
 
-        <!-- Item 2 -->
+        Item 2
         <div class="order-item">
             <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200" alt="Pro Gaming Mouse"
                 class="item-image">
@@ -69,7 +88,7 @@ Order Success | Thank you for your order
             </div>
         </div>
 
-        <!-- Item 3 -->
+        Item 3
         <div class="order-item">
             <div class="item-image-placeholder">□</div>
             <div class="item-details">
@@ -82,21 +101,21 @@ Order Success | Thank you for your order
                 <div class="item-total-price">$35.00</div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Order Summary -->
     <div class="order-summary">
         <div class="summary-row subtotal">
             <span>Subtotal</span>
-            <span>$495.00</span>
+            <span>{{order_summary.sub_total}} PKR</span>
         </div>
         <div class="summary-row shipping">
             <span>Shipping</span>
-            <span>$15.00</span>
+            <span>{{order_summary.shipping}} PKR</span>
         </div>
         <div class="summary-row total">
             <span>TOTAL</span>
-            <span>$510.00</span>
+            <span>{{order_summary.total_amount}} PKR</span>
         </div>
     </div>
 
