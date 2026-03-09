@@ -100,8 +100,19 @@ class OrderItems(models.Model):
 
 class ShippingAddress(models.Model):
     order = models.OneToOneField(Order,on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=9999,null=True,blank=True)
-    last_name = models.CharField(max_length=9999,null=True,blank=True)
+    name = models.CharField(max_length=9999,null=True,blank=True)
     phone = models.PositiveBigIntegerField()
     city = models.CharField(max_length=999)
-    address = models.TextField()
+    address1 = models.TextField()
+    address2 = models.TextField(null=True,blank=True,default='')
+    postal_code = models.PositiveIntegerField(null=True,blank=True,default=None)
+    
+
+
+class OrderTax(models.Model):
+    order = models.ForeignKey('Order',on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    value = models.PositiveIntegerField()
+
+
+

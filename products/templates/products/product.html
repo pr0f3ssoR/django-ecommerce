@@ -55,10 +55,7 @@
 
                 <div class="product-price" id="productPrice"></div>
 
-                <p class="product-description" id="productDescription">
-                    <!-- Premium mechanical keyboard with RGB lighting and hot-swappable switches. Perfect for gaming and typing. Features include programmable keys, durable aluminum frame, and anti-ghosting technology for the ultimate gaming experience. -->
-                    {{product.description}}
-                </p>
+                
 
                 <!-- Single Variant Selector -->
                 <div class="variant-section">
@@ -98,7 +95,7 @@
                 </div>
 
                 <!-- Product Features -->
-                <div class="product-features">
+                <!-- <div class="product-features">
                     <h3 class="features-title">Features</h3>
                     <ul class="features-list">
                         <li>
@@ -126,7 +123,7 @@
                             Detachable USB-C cable
                         </li>
                     </ul>
-                </div>
+                </div> -->
 
                 <!-- Admin Section (Hidden by default) -->
                 <!-- <div class="admin-section show"> -->
@@ -145,27 +142,18 @@
     <section class="additional-info">
         <div class="tabs">
             <button class="tab active" data-tab="description">DESCRIPTION</button>
-            <button class="tab" data-tab="specifications">SPECIFICATIONS</button>
-            <button class="tab" data-tab="reviews">REVIEWS</button>
+            <!-- <button class="tab" data-tab="specifications">SPECIFICATIONS</button> -->
+            <!-- <button class="tab" data-tab="reviews">REVIEWS</button> -->
         </div>
 
         <div class="tab-content">
-            <!-- Description Tab -->
             <div class="tab-panel active" id="description">
                 <h3>Product Description</h3>
-                <p>
-                    Experience the ultimate typing and gaming performance with our premium mechanical keyboard. Designed for enthusiasts who demand the best, this keyboard features hot-swappable switches that allow you to customize your typing experience without soldering.
-                </p>
-                <p>
-                    The durable aluminum frame ensures longevity while providing a premium feel. Each key is individually backlit with RGB lighting, allowing you to create stunning light effects and customize your setup to match your style.
-                </p>
-                <p>
-                    Whether you're gaming, coding, or writing, this keyboard delivers exceptional performance with N-key rollover and anti-ghosting technology ensuring every keystroke is registered accurately, even during intense gaming sessions.
-                </p>
+                {{product.description}}
             </div>
 
             <!-- Specifications Tab -->
-            <div class="tab-panel" id="specifications">
+            <!-- <div class="tab-panel" id="specifications">
                 <h3>Technical Specifications</h3>
                 <table class="specifications-table">
                     <tr>
@@ -209,10 +197,10 @@
                         <td>2 Years</td>
                     </tr>
                 </table>
-            </div>
+            </div> -->
 
             <!-- Reviews Tab -->
-            <div class="tab-panel" id="reviews">
+            <!-- <div class="tab-panel" id="reviews">
                 <h3>Customer Reviews</h3>
                 <p>
                     Average Rating: ★★★★★ (4.8/5.0 based on 128 reviews)
@@ -220,7 +208,7 @@
                 <p>
                     Reviews content will be displayed here. You can add individual review components with user names, ratings, dates, and review text.
                 </p>
-            </div>
+            </div> -->
         </div>
     </section>
 

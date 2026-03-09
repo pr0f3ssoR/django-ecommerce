@@ -13,12 +13,15 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">TECHSTORE</div>
+            <div class="logo"><a class="a-link" style="color: black;" href="{%url 'home_page_redirect' %}">TECHSTORE</a></div>
             <div class="nav-search">
                 <span class="nav-search-icon">🔍</span>
                 <input type="text" id="navSearch" placeholder="Search products">
             </div>
             <div class="nav-actions">
+                <a class="nav-link" href="{%url 'tracking_view' %}">
+                    TRACK ORDER
+                </a>
                 <a href="#" class="nav-link">
                     <span>❤</span> WISHLIST
                 </a>
@@ -36,14 +39,14 @@
 
                 {%if request.user.is_authenticated%}
                     {%if request.user.is_superuser%}
-                        <a class="admin-btn" href="{%url 'admin:index'%}"> ADMIN</a>
+                        <a class="admin-btn a-link" href="{%url 'admin:index'%}"> ADMIN</a>
                     {%else%}
                         <button class="admin-btn" id="adminToggle">{{request.user.username}}</button>
                     {%endif%}
-                        <a class="admin-btn" href="{%url 'users:logout'%}">LOGOUT</a>
+                        <a class="admin-btn a-link" href="{%url 'users:logout'%}">LOGOUT</a>
                 {%else%}
-                    <a class="admin-btn" href="{%url 'users:register'%}">REGISTER</a>
-                    <a class="admin-btn" href="{%url 'users:login' %}">LOGIN</a>
+                    <a class="admin-btn a-link" href="{%url 'users:register'%}">REGISTER</a>
+                    <a class="admin-btn a-link" href="{%url 'users:login' %}">LOGIN</a>
                 {%endif%}
             </div>
         </div>

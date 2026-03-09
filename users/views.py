@@ -186,7 +186,7 @@ def check_out_view(request:HttpRequest):
 
                 }
             for item in cart_items],
-            # phone_number_collection={'enabled':True},
+            phone_number_collection={'enabled':True},
             mode='payment',success_url='http://127.0.0.1:8000/success/?session_id={CHECKOUT_SESSION_ID}',
             shipping_options=[
                             {

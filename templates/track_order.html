@@ -1,0 +1,36 @@
+{%extends 'base.html'%}
+{%load static%}
+
+
+{%block css%}
+<link rel="stylesheet" href="{%static 'css/track_order.css'%}">
+
+{%endblock%}
+
+{%block title%}
+Track Your Order
+{%endblock%}
+{%block content%}
+<div class="tracking-container">
+        <!-- Header -->
+        <div class="tracking-header">
+            <h1 class="tracking-title">TRACK YOUR ORDER</h1>
+            <p class="tracking-subtitle">
+                Enter your order number below to track your package and view delivery status
+            </p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <form method="get" class="search-container" id="trackingForm">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="orderInput"
+                    name="id"
+                    placeholder="Enter order number" 
+                    required>
+                <button type="submit" class="search-btn">TRACK</button>
+            </form>
+        </div>
+{%endblock%}

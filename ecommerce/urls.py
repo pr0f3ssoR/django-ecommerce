@@ -18,13 +18,15 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import order_success
+from .views import order_success,home_page_redirect,tracking_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/',include('users.urls')),
     path('products/',include('products.urls')),
-    path('success/',view=order_success,name='order_success')
+    path('success/',view=order_success,name='order_success'),
+    path('tracking/',view=tracking_view,name='tracking_view'),
+    path('',view=home_page_redirect,name='home_page_redirect'),
 ]
 
 if settings.DEBUG:

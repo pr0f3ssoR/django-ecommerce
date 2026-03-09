@@ -49,7 +49,7 @@ Order Success | Thank you for your order
             <div class="item-details">
                 <div class="item-name">{{order_item.title}}</div>
                 <div class="item-variant">{{order_item.attributes}}</div>
-                <div class="item-quantity">{{order.qty}}</div>
+                <div class="item-quantity">Quantity: {{order_item.qty}}</div>
             </div>
             <div class="item-price-section">
                 <div class="item-unit-price">{{order_item.price}} PKR each</div>
@@ -58,61 +58,18 @@ Order Success | Thank you for your order
         </div>
         {%endfor%}
 
-        <!-- Item 1 -->
-        <!-- <div class="order-item">
-            <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200"
-                alt="Mechanical Gaming Keyboard" class="item-image">
-            <div class="item-details">
-                <div class="item-name">Mechanical Gaming Keyboard</div>
-                <div class="item-variant">TKL • Wireless • Red Switches</div>
-                <div class="item-quantity">Quantity: 1</div>
-            </div>
-            <div class="item-price-section">
-                <div class="item-unit-price">$300.00 each</div>
-                <div class="item-total-price">$300.00</div>
-            </div>
-        </div>
-
-        Item 2
-        <div class="order-item">
-            <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200" alt="Pro Gaming Mouse"
-                class="item-image">
-            <div class="item-details">
-                <div class="item-name">Pro Gaming Mouse</div>
-                <div class="item-variant">Black • 16000 DPI</div>
-                <div class="item-quantity">Quantity: 2</div>
-            </div>
-            <div class="item-price-section">
-                <div class="item-unit-price">$80.00 each</div>
-                <div class="item-total-price">$160.00</div>
-            </div>
-        </div>
-
-        Item 3
-        <div class="order-item">
-            <div class="item-image-placeholder">□</div>
-            <div class="item-details">
-                <div class="item-name">RGB Mouse Pad</div>
-                <div class="item-variant">XXL • RGB</div>
-                <div class="item-quantity">Quantity: 1</div>
-            </div>
-            <div class="item-price-section">
-                <div class="item-unit-price">$35.00 each</div>
-                <div class="item-total-price">$35.00</div>
-            </div>
-        </div>
-    </div> -->
-
     <!-- Order Summary -->
     <div class="order-summary">
         <div class="summary-row subtotal">
             <span>Subtotal</span>
             <span>{{order_summary.sub_total}} PKR</span>
         </div>
-        <div class="summary-row shipping">
-            <span>Shipping</span>
-            <span>{{order_summary.shipping}} PKR</span>
-        </div>
+        {%if order_summary.shipping > 0%}
+            <div class="summary-row shipping">
+                <span>Shipping</span>
+                <span>{{order_summary.shipping}} PKR</span>
+            </div>
+        {%endif%}
         <div class="summary-row total">
             <span>TOTAL</span>
             <span>{{order_summary.total_amount}} PKR</span>
@@ -125,11 +82,13 @@ Order Success | Thank you for your order
         <div class="info-block">
             <h3 class="info-block-title">Shipping Address</h3>
             <p>
-                John Doe<br>
-                123 Main Street, Apt 4B<br>
-                New York, NY 10001<br>
-                United States<br>
-                Phone: +1 (555) 123-4567
+                {{shipping.name}}<br>
+                {{shipping.address1}}<br>
+                {%if shipping.address2%}
+                    {{shipping.address2}}<br>
+                {%endif%}
+                {{shipping.city}}<br>
+                Phone: {{shipping.phone}}
             </p>
         </div>
 
@@ -137,24 +96,15 @@ Order Success | Thank you for your order
         <div class="info-block">
             <h3 class="info-block-title">Billing Address</h3>
             <p>
-                John Doe<br>
-                123 Main Street, Apt 4B<br>
-                New York, NY 10001<br>
-                United States<br>
-                Phone: +1 (555) 123-4567
+                {{shipping.name}}<br>
+                {{shipping.address1}}<br>
+                {%if shipping.address2%}
+                    {{shipping.address2}}<br>
+                {%endif%}
+                {{shipping.city}}<br>
+                Phone: {{shipping.phone}}
             </p>
         </div>
-
-        <!-- Payment Method -->
-        <div class="info-block">
-            <h3 class="info-block-title">Payment Method</h3>
-            <p>
-                Credit Card<br>
-                •••• •••• •••• 4242<br>
-                Expires: 12/28
-            </p>
-        </div>
-
         <!-- Shipping Method -->
         <div class="info-block">
             <h3 class="info-block-title">Shipping Method</h3>
