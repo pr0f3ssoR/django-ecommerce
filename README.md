@@ -48,7 +48,6 @@ This eCommerce system allows:
 - ✔ Scalable structure
 - ✔ Stripe Api Integration To Accept Payments From Users
 
-Note: In Order To Accept Payments In Stripe SandBox, You Must Create .env File In Project Folder And Define Variables "stripe_publick_key" And "stripe_screte_key". These Both Keys Can Acquired By Creating An Account On Stripe Website For Free.
 ---
 
 ## ⚙️ Tech Stack
@@ -90,7 +89,15 @@ Below is the list of available routes and what they do:
 | '/cart/' | GET | Display all products added to cart |
 | '/add-to-cart/' | POST | Add the product to cart, both anonymouse & authenticated users can add products to cart, anonymouse user uses django session to store cart info |
 | '/delete-from-cart/' | POST | Delete product from your cart |
-| '/check-out/' | POST | Checkout page to accept payment using stripe, you must use stripe api in order for this url to work. Check "Key Features" note section for how to use stripe api in this project |
+| '/check-out/' | POST | Checkout page to accept payment using stripe, you must use stripe api in order for this url to work. Check "Stripe Api Integration" section for how to use stripe api in this project |
 | '/tracking/' | GET | Track your order by entering order id which was given when the order was generated |
 
 ---
+
+## 💲 Stripe Api Integration
+
+In Order To Accept Payments In Stripe SandBox, You Must Create .env File In Project Folder And Define Variables "stripe_publick_key" And "stripe_screte_key". These Both Keys Can Acquired By Creating An Account On Stripe Website For Free. You Can Search "stripe testing cards" To Get SandBox Working Cards Or Use The Below One For Successful Paymeny
+
+| Brand | Number | CVC | Date |
+|----|--------------|---|---|
+| 'Visa' | 4242 4242 4242 4242 | Any 3 Digits | Any Future Date |
