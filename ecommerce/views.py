@@ -34,7 +34,7 @@ def order_success(request:HttpRequest):
                 'phone':session.customer_details.phone
             }
 
-        shipping_tax = session.shipping_cost.amount_total/100 if hasattr(session, 'shipping_cost') else 0
+        shipping_tax = int(session.shipping_cost.amount_total)/100 if hasattr(session, 'shipping_cost') else 0
         taxes_dict = {
             'shipping':shipping_tax
         }
@@ -43,8 +43,8 @@ def order_success(request:HttpRequest):
 
         order_summary = {
             'sub_total':session.amount_subtotal/100,
-            'shipping':shipping_tax,
-            'total_amount':session.amount_total/100
+            'tax':[{'name':'shipping','value':shipping_tax}],
+            'grand_total':session.amount_total/100
         }
 
     
@@ -61,11 +61,12 @@ def tracking_view(request:HttpRequest):
     order = None
     order_items = None
     address_details = None
+    order_summary = None
 
     if order_id:
-        order,order_items,address_details = get_tracking(order_id)
+        order,order_items,order_summary,address_details = get_tracking(order_id)
 
-        return render(request,'users/order_success.html',context={'order_items':order_items,'order':order,'shipping':address_details})
+        return render(request,'users/order_success.html',context={'order_items':order_items,'order':order,'shipping':address_details,'order_summary':order_summary})
 
     return render(request,'track_order.html')
 

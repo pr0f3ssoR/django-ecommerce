@@ -65,32 +65,6 @@ def generate_order(items,taxes_dict:dict,user,address_details):
 
     shipping = ShippingAddress(order=order,**address_details)
     shipping.save()
-
-    # order_item_ids = [order_item.id for order_item in order_items]
-
-    # vav_subquery = VariantAttributeValue.objects.select_related('attribute_value__attribute')\
-    # .filter(variant_id = OuterRef('item_id'))\
-    # .values('variant_id')\
-    # .annotate(attributes=GroupConcat(
-    #     Concat(
-    #         F('attribute_value__attribute__name'),
-    #         Value(':'),
-    #         F('attribute_value__value')
-    #     )
-    # ))\
-    # .values('attributes')[:1]
-
-    # image_subquery = VariantImage.objects.filter(variant_id=OuterRef('item_id'))\
-    # .values('image_url')[:1]
-
-    # order_items = OrderItems.objects.filter(id__in=order_item_ids).select_related('item__product')\
-    # .annotate(attributes=Subquery(vav_subquery),image=Subquery(image_subquery))\
-    # .values('attributes',
-    #         'qty',
-    #         'image',
-    #         title=F('item__product__title'),
-    #         price = F('item__price'),
-    #         )
     
     order_items_qs = get_order_details(order_id=order.pk)
 
@@ -107,11 +81,23 @@ def get_tracking(order_id):
 
     address_details = ShippingAddress.objects.get(order_id=order.pk)
 
-    tax = OrderTax.objects.filter(order_id=order_id)
+    tax_qs = list(OrderTax.objects.filter(order_id=order_id))
 
-    sub_total = 0
+    tax = sum([int(tax.value) for tax in tax_qs])
 
-    return order,order_items,address_details
+    sub_total = sum(int(item['price']) * int(item['qty']) for item in order_items)
+
+    grand_total = tax+sub_total
+
+    order_summary = {
+        'sub_total':sub_total,
+        'tax':tax_qs,
+        'grand_total':grand_total
+    }
+
+    pprint(tax_qs)
+    
+    return order,order_items,order_summary,address_details
 
 
 

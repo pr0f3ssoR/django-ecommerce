@@ -64,15 +64,23 @@ Order Success | Thank you for your order
             <span>Subtotal</span>
             <span>{{order_summary.sub_total}} PKR</span>
         </div>
-        {%if order_summary.shipping > 0%}
+        <!-- {%if order_summary.shipping > 0%}
             <div class="summary-row shipping">
                 <span>Shipping</span>
                 <span>{{order_summary.shipping}} PKR</span>
             </div>
-        {%endif%}
+        {%endif%} -->
+        {%for tax_obj in order_summary.tax%}
+            {%if tax_obj.value > 0%}
+                <div class="summary-row shipping">
+                    <span>{{tax_obj.name}}</span>
+                    <span>{{tax_obj.value}} PKR</span>
+                </div>
+            {%endif%}
+        {%endfor%}
         <div class="summary-row total">
             <span>TOTAL</span>
-            <span>{{order_summary.total_amount}} PKR</span>
+            <span>{{order_summary.grand_total}} PKR</span>
         </div>
     </div>
 
