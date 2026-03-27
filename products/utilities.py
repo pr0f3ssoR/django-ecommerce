@@ -367,3 +367,4 @@ def handle_deletion(product_id,variant_ids,image_ids):
                 variant_image.delete()
             except VariantImage.DoesNotExist:
                 pass
+    

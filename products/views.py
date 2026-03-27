@@ -10,11 +10,12 @@ from .view_forms import ProductForm,ProductVariantForm,ProductVariantFormset,Var
 from .utilities import ProductUpsertService,ProductFetcher,handle_deletion
 from pprint import pprint
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import user_passes_test
 
 def product_view_dummy(request):
     return HttpResponse('Hello there')
 
-
+@user_passes_test(lambda user:user.is_superuser)
 def update_product(request:HttpRequest,pk):
 
     errors = []
@@ -65,7 +66,7 @@ def update_product(request:HttpRequest,pk):
 
     return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'delete_form':delete_form,'errors':errors})
     
-
+@user_passes_test(lambda user:user.is_superuser)
 def create_product(request:HttpRequest):
     if request.method == 'POST':
         product_form = ProductForm(request.POST,request.FILES)
@@ -90,6 +91,7 @@ def create_product(request:HttpRequest):
     return render(request,'products/crud_product_template.html',{'product_form':product_form,'variant_formset':variant_formset,'variant_image_form':variant_image_form})
 
 
+@user_passes_test(lambda user:user.is_superuser)
 def delete_product(request:HttpRequest,pk):
     try:
         product = Product.objects.get(id=pk)
@@ -103,7 +105,7 @@ def list_products(request:HttpRequest):
 
     products = Product.objects.order_by('-id').all()
 
-    pagination = Paginator(products,1)
+    pagination = Paginator(products,10)
 
     current_page = request.GET.get('page',1)
 

@@ -94,8 +94,6 @@ def get_tracking(order_id):
         'tax':tax_qs,
         'grand_total':grand_total
     }
-
-    pprint(tax_qs)
     
     return order,order_items,order_summary,address_details
 

@@ -7,7 +7,6 @@ from pprint import pprint
 
 def order_success(request:HttpRequest):
     session_id = request.GET.get('session_id',None)
-    
     order = None
     order_items = None
     order_summary = None

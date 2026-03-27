@@ -539,4 +539,5 @@ def first_user():
 order_details = random_order_details()
 user = first_user()
 
-pprint(generate_order(user=user,items=order_details))
+
+print()

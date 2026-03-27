@@ -202,16 +202,7 @@ def check_out_view(request:HttpRequest):
                             shipping_address_collection={
                         'allowed_countries': ['US', 'CA', 'PK'],  # Add the countries you support
                     },
-                            
-                            # metadata={
-                            #     'products':[
-                            #         {
-                            #         'variant_id':str(item['variant_id']),
-                            #         'qty':str(item['item_qty'])
-                            #     }
-                            #     for item in cart_items
-                            #     ]
-                            # }
+                        
                                                 )
         return redirect(session.url)
     
